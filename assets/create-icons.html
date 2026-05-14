@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Generate PWA Icons</title>
+</head>
+<body>
+    <h1>Instructions pour créer les icônes PWA</h1>
+    <p>Utilisez votre logo (logo.jpg) et créez les versions suivantes:</p>
+    <ul>
+        <li><strong>icon-192.png</strong> - 192x192 pixels</li>
+        <li><strong>icon-512.png</strong> - 512x512 pixels</li>
+    </ul>
+    <p>Vous pouvez utiliser un outil en ligne comme:</p>
+    <ul>
+        <li><a href="https://realfavicongenerator.net/" target="_blank">RealFaviconGenerator</a></li>
+        <li><a href="https://www.pwabuilder.com/" target="_blank">PWA Builder</a></li>
+        <li>Ou un éditeur d'image pour redimensionner logo.jpg</li>
+    </ul>
+    
+    <canvas id="canvas" width="512" height="512" style="border: 1px solid #ccc; margin-top: 20px;"></canvas>
+    
+    <script>
+        // Simple icon generator from existing logo
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Create gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+        gradient.addColorStop(0, '#1E40AF');
+        gradient.addColorStop(1, '#3B82F6');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 512, 512);
+        
+        // Add text
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 120px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('CV', 256, 256);
+        
+        console.log('Icon preview generated. Right-click to save as icon-512.png');
+        console.log('Then resize to 192x192 for icon-192.png');
+    </script>
+</body>
+</html>

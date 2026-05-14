@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News & Recrutement - CVisual Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../css/admin.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo" onclick="window.location.href='../index.html'">
+            <img src="../../assets/logo.jpg" alt="Logo" class="w-10 h-10 rounded">
+            <span>CVisual</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </a>
+            <a href="portfolio.html" class="nav-item">
+                <i data-lucide="briefcase" class="w-5 h-5"></i>
+                Portfolio
+            </a>
+            <a href="services.html" class="nav-item">
+                <i data-lucide="layers" class="w-5 h-5"></i>
+                Services
+            </a>
+            <a href="news.html" class="nav-item active">
+                <i data-lucide="newspaper" class="w-5 h-5"></i>
+                News & Jobs
+            </a>
+            <a href="inbox.html" class="nav-item">
+                <i data-lucide="mail" class="w-5 h-5"></i>
+                Inquiries
+            </a>
+            <a href="newsletter.html" class="nav-item">
+                <i data-lucide="send" class="w-5 h-5"></i>
+                Newsletter
+            </a>
+        </nav>
+
+        <div class="mt-auto">
+            <button onclick="AdminApp.logout()" class="nav-item w-full text-left text-red-400 hover:text-red-300">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header-admin">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800">News & Recrutement</h2>
+                <p class="text-gray-500">Gérez vos actualités et vos offres d'emploi.</p>
+            </div>
+            <button onclick="openNewsModal()" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center space-x-2">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                <span>Ajouter</span>
+            </button>
+        </header>
+
+        <!-- Tabs -->
+        <div class="flex space-x-4 mb-8 border-b border-gray-200">
+            <button onclick="switchTab('posts')" id="tab-posts" class="px-6 py-3 font-bold text-blue-600 border-b-2 border-blue-600 transition-all">Articles & Offres</button>
+            <button onclick="switchTab('candidates')" id="tab-candidates" class="px-6 py-3 font-bold text-gray-500 hover:text-blue-600 transition-all">Candidats</button>
+        </div>
+
+        <!-- Section Posts -->
+        <div id="section-posts" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="newsList">
+                <!-- Content loaded by JS -->
+            </div>
+        </div>
+
+        <!-- Section Candidates -->
+        <div id="section-candidates" class="hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4">Candidat</th>
+                                <th class="px-6 py-4">Poste / Sales Level</th>
+                                <th class="px-6 py-4">TikTok / WhatsApp</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidatesList" class="divide-y divide-gray-100">
+                            <!-- Content loaded by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- News Modal -->
+    <div id="newsModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeNewsModal()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-xl bg-white shadow-2xl p-8 overflow-y-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-bold" id="modalTitle">Nouvel Article</h3>
+                <button onclick="closeNewsModal()" class="p-2 rounded-full hover:bg-gray-100"><i data-lucide="x"></i></button>
+            </div>
+            <form id="newsForm" class="space-y-6">
+                <input type="hidden" id="newsId">
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700">Titre</label>
+                    <input type="text" id="newsTitle" class="w-full p-4 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500/20" required>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700">Type</label>
+                    <select id="newsType" class="w-full p-4 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500/20">
+                        <option value="actualite">Actualité</option>
+                        <option value="recrutement">Recrutement</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700">Contenu</label>
+                    <textarea id="newsContent" rows="8" class="w-full p-4 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500/20" required></textarea>
+                </div>
+                <button type="submit" class="w-full py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-blue-600 transition-all">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Candidate Detail Modal -->
+    <div id="candidateModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCandidateModal()"></div>
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-10">
+            <div id="candidateDetailContent">
+                <!-- Content loaded by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/admin.js"></script>
+    <script>
+        lucide.createIcons();
+
+        function switchTab(tab) {
+            const sections = ['posts', 'candidates'];
+            sections.forEach(s => {
+                document.getElementById(`section-${s}`).classList.add('hidden');
+                document.getElementById(`tab-${s}`).classList.remove('text-blue-600', 'border-blue-600', 'border-b-2');
+                document.getElementById(`tab-${s}`).classList.add('text-gray-500');
+            });
+            document.getElementById(`section-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('text-blue-600', 'border-blue-600', 'border-b-2');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-500');
+            
+            if (tab === 'posts') loadNews();
+            if (tab === 'candidates') loadCandidates();
+        }
+
+        async function loadNews() {
+            const news = await AdminApp.request('/news');
+            const container = document.getElementById('newsList');
+            container.innerHTML = news.map(item => `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${item.type === 'recrutement' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}">
+                            ${item.type}
+                        </span>
+                        <span class="text-xs text-gray-400">${item.date}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">${item.title}</h3>
+                    <p class="text-gray-500 text-sm line-clamp-3 mb-6">${item.content}</p>
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-50">
+                        <button onclick="editNews(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="text-blue-600 text-sm font-bold hover:underline">Modifier</button>
+                        <button onclick="deleteNews(${item.id})" class="text-red-400 text-sm hover:text-red-600 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function loadCandidates() {
+            const apps = await AdminApp.request('/admin/applications');
+            const container = document.getElementById('candidatesList');
+            container.innerHTML = apps.map(app => `
+                <tr class="hover:bg-gray-50 transition-all">
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-800">${app.full_name}</span>
+                            <span class="text-xs text-gray-400">${app.email}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-gray-600">${app.sales_level || 'N/A'}</span>
+                            <span class="text-[10px] text-gray-400">ID: ${app.news_id}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-3 text-gray-400">
+                            <a href="https://wa.me/${app.whatsapp}" target="_blank" class="hover:text-green-500"><i data-lucide="phone" class="w-4 h-4"></i></a>
+                            <a href="https://tiktok.com/@${app.tiktok}" target="_blank" class="hover:text-pink-500"><i data-lucide="video" class="w-4 h-4"></i></a>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusClass(app.status)}">
+                            ${app.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick='viewCandidate(${JSON.stringify(app).replace(/'/g, "&#39;")})' class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-900 hover:text-white transition-all">Détails</button>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'pending': return 'bg-yellow-100 text-yellow-600';
+                case 'interview': return 'bg-blue-100 text-blue-600';
+                case 'accepted': return 'bg-green-100 text-green-600';
+                case 'rejected': return 'bg-red-100 text-red-600';
+                default: return 'bg-gray-100 text-gray-600';
+            }
+        }
+
+        function openNewsModal() {
+            document.getElementById('newsId').value = '';
+            document.getElementById('newsForm').reset();
+            document.getElementById('modalTitle').textContent = 'Nouvel Article';
+            document.getElementById('newsModal').classList.remove('hidden');
+        }
+
+        function editNews(item) {
+            document.getElementById('newsId').value = item.id;
+            document.getElementById('newsTitle').value = item.title;
+            document.getElementById('newsType').value = item.type;
+            document.getElementById('newsContent').value = item.content;
+            document.getElementById('modalTitle').textContent = 'Modifier l\'Article';
+            document.getElementById('newsModal').classList.remove('hidden');
+        }
+
+        function closeNewsModal() {
+            document.getElementById('newsModal').classList.add('hidden');
+        }
+
+        document.getElementById('newsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('newsId').value;
+            const data = {
+                title: document.getElementById('newsTitle').value,
+                type: document.getElementById('newsType').value,
+                content: document.getElementById('newsContent').value
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            const endpoint = id ? `/admin/news/${id}` : '/admin/news';
+            
+            const res = await AdminApp.request(endpoint, {
+                method: method,
+                body: JSON.stringify(data)
+            });
+
+            if (res && res.success) {
+                closeNewsModal();
+                loadNews();
+            }
+        });
+
+        async function deleteNews(id) {
+            if (confirm('Supprimer cet article ?')) {
+                const res = await AdminApp.request(`/admin/news/${id}`, { method: 'DELETE' });
+                if (res && res.success) loadNews();
+            }
+        }
+
+        function viewCandidate(app) {
+            const content = `
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-900">${app.full_name}</h2>
+                            <p class="text-blue-600 font-medium">${app.email}</p>
+                        </div>
+                        <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase ${getStatusClass(app.status)}">${app.status}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl">
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">WhatsApp</p>
+                            <p class="font-bold text-gray-800">${app.whatsapp}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">TikTok</p>
+                            <p class="font-bold text-gray-800">${app.tiktok}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">Sales Level</p>
+                            <p class="font-bold text-gray-800">${app.sales_level}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">Lien CV / Portfolio</p>
+                            <a href="${app.cv_link}" target="_blank" class="text-blue-600 hover:underline font-bold truncate block">Voir le lien</a>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-xs text-gray-400 font-bold uppercase">Motivation</p>
+                        <p class="text-gray-700 leading-relaxed bg-gray-50 p-6 rounded-2xl">${app.motivation}</p>
+                    </div>
+                    <div class="flex space-x-3 pt-6 border-t border-gray-100">
+                        <button onclick="updateStatus(${app.id}, 'interview')" class="flex-1 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all">Interview</button>
+                        <button onclick="updateStatus(${app.id}, 'accepted')" class="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all">Accepter</button>
+                        <button onclick="updateStatus(${app.id}, 'rejected')" class="flex-1 py-4 bg-red-100 text-red-600 rounded-xl font-bold hover:bg-red-200 transition-all">Refuser</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('candidateDetailContent').innerHTML = content;
+            document.getElementById('candidateModal').classList.remove('hidden');
+        }
+
+        async function updateStatus(id, status) {
+            const res = await AdminApp.request(`/admin/applications/${id}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status })
+            });
+            if (res && res.success) {
+                closeCandidateModal();
+                loadCandidates();
+            }
+        }
+
+        function closeCandidateModal() {
+            document.getElementById('candidateModal').classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNews();
+        });
+    </script>
+</body>
+</html>

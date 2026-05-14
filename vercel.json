@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/admin/(.*)", "destination": "/pages/admin/$1.html" },
+    { "source": "/services", "destination": "/pages/services.html" },
+    { "source": "/portfolio", "destination": "/pages/portfolio.html" },
+    { "source": "/about", "destination": "/pages/about.html" },
+    { "source": "/contact", "destination": "/pages/contact.html" },
+    { "source": "/blog", "destination": "/pages/blog.html" }
+  ]
+}

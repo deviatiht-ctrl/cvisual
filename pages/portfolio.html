@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="description" content="Découvrez notre portfolio de projets créatifs - Sites web, photographie, design graphique et gestion de réseaux sociaux pour entreprises haïtiennes.">
+    <title>Portfolio | CVisual Agency</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        accent: '#F97316',
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary: #1E40AF;
+            --accent: #F97316;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            background-color: #fcfcfc;
+        }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+
+        .glass-nav {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #1E40AF 0%, #F97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(30, 64, 175, 0.03) 0%, rgba(30, 64, 175, 0) 70%);
+            filter: blur(100px);
+            z-index: -1;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .portfolio-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .portfolio-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="text-gray-900">
+
+    <!-- Floating Navbar -->
+    <div class="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4">
+        <header class="glass-nav w-full max-w-5xl rounded-full px-6 py-3 flex items-center justify-between transition-all duration-300" id="mainHeader">
+            <a href="../index.html" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg border-2 border-white">
+                    <img src="../assets/logo.jpg" class="w-full h-full object-cover" alt="Logo">
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="text-2xl font-outfit font-black tracking-tight">CVisual</span>
+                    <span class="text-[9px] uppercase tracking-widest text-primary font-bold">Creative Agency</span>
+                </div>
+            </a>
+            <nav class="hidden md:flex items-center space-x-1 bg-gray-900/5 p-1 rounded-full">
+                <a href="../index.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Accueil</a>
+                <a href="services.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Services</a>
+                <a href="portfolio.html" class="px-4 py-2 rounded-full bg-white shadow-sm text-primary font-bold text-sm">Portfolio</a>
+                <a href="news.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Actualités</a>
+                <a href="about.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">À Propos</a>
+            </nav>
+            <a href="contact.html" class="hidden sm:block px-6 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">Contact</a>
+            <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </header>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenu" class="fixed inset-0 z-[200] hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-md" id="menuOverlay"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white p-8 flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between mb-12">
+                <span class="text-2xl font-outfit font-black text-gray-900">Menu</span>
+                <button id="closeMenu" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-4 font-semibold text-gray-600">
+                <a href="../index.html" class="p-4 rounded-2xl hover:bg-gray-50">Accueil</a>
+                <a href="services.html" class="p-4 rounded-2xl hover:bg-gray-50">Services</a>
+                <a href="portfolio.html" class="p-4 rounded-2xl bg-primary/10 text-primary">Portfolio</a>
+                <a href="news.html" class="p-4 rounded-2xl hover:bg-gray-50">Actualités</a>
+                <a href="about.html" class="p-4 rounded-2xl hover:bg-gray-50">À Propos</a>
+                <a href="contact.html" class="p-4 rounded-2xl bg-gray-900 text-white text-center mt-4">Contact</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="relative pt-48 pb-16 overflow-hidden bg-white">
+        <div class="hero-glow top-0 left-0"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h1 class="text-5xl md:text-7xl font-outfit font-black text-gray-900 mb-6 leading-tight">
+                Notre <span class="text-gradient">Portfolio</span> <br> Créatif
+            </h1>
+            <p class="text-xl text-gray-500 max-w-2xl mx-auto font-medium">
+                Découvrez comment nous transformons les entreprises haïtiennes avec des solutions visuelles exceptionnelles.
+            </p>
+        </div>
+    </section>
+
+    <!-- Portfolio Grid -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-12 space-y-6 md:space-y-0">
+                <div class="text-gray-500 font-medium">
+                    <span id="resultsCount" class="text-primary font-black text-2xl">0</span> projets d'exception
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-bold text-gray-400 uppercase tracking-widest">Filtrer :</span>
+                    <select id="categoryFilter" class="bg-gray-50 border border-gray-100 rounded-full px-6 py-2.5 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option value="all">Tous les Projets</option>
+                        <option value="web">Sites Web</option>
+                        <option value="photography">Photographie</option>
+                        <option value="branding">Branding</option>
+                        <option value="social">Réseaux Sociaux</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="portfolioGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Projects dynamically loaded -->
+                <div class="col-span-full flex flex-col items-center py-20 text-gray-400">
+                    <i data-lucide="loader" class="w-10 h-10 animate-spin mb-4"></i>
+                    <p class="font-medium">Chargement de nos réalisations...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div id="projectModal" class="fixed inset-0 z-[1000] hidden">
+        <div class="absolute inset-0 bg-gray-900/90 backdrop-blur-md" id="modalOverlay"></div>
+        <div class="absolute inset-4 md:inset-10 lg:inset-20 bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col">
+            <button onclick="closeModal()" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white hover:text-gray-900 transition-all z-10">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div id="modalContent" class="overflow-y-auto h-full"></div>
+        </div>
+    </div>
+
+    <!-- Footer (Consistent) -->
+    <footer class="bg-gray-900 text-white pt-24 pb-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
+                <div class="space-y-8">
+                    <div class="flex items-center space-x-3">
+                        <img src="../assets/logo.jpg" width="45" height="45" class="rounded-xl ring-2 ring-white/10" alt="logo">
+                        <span class="text-3xl font-outfit font-black">CVisual</span>
+                    </div>
+                    <p class="text-gray-400 text-lg">L'excellence visuelle au service de votre croissance en Haïti.</p>
+                </div>
+                <div class="space-y-8">
+                    <h4 class="text-xl font-bold font-outfit">Navigation</h4>
+                    <ul class="space-y-4 text-gray-400">
+                        <li><a href="../index.html" class="hover:text-white">Accueil</a></li>
+                        <li><a href="services.html" class="hover:text-white">Services</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-12 border-t border-white/5 text-center text-gray-500 font-medium">
+                © 2025 CVisual Agency. Crafted with passion.
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/public.js"></script>
+    <script>
+        lucide.createIcons();
+        let currentProjects = [];
+
+        async function renderProjects() {
+            try {
+                currentProjects = await CVisual.fetchPortfolio();
+                const grid = document.getElementById('portfolioGrid');
+                const count = document.getElementById('resultsCount');
+                
+                if (!currentProjects || currentProjects.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 font-medium">Aucun projet trouvé.</div>';
+                    count.textContent = 0;
+                    return;
+                }
+
+                count.textContent = currentProjects.length;
+                grid.innerHTML = currentProjects.map(p => `
+                    <article class="portfolio-card bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl group">
+                        <div class="relative aspect-[4/3] overflow-hidden">
+                            <img src="${p.main_image}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-8">
+                                <button onclick="openProjectDetails(${p.id})" class="w-full py-4 bg-white text-gray-900 font-bold rounded-2xl flex items-center justify-center space-x-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                    <span>Découvrir le Projet</span>
+                                    <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            <div class="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-primary font-bold text-xs uppercase tracking-widest shadow-sm">
+                                ${p.category}
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <h3 class="text-2xl font-outfit font-black mb-3 group-hover:text-primary transition-colors">${p.title}</h3>
+                            <p class="text-gray-500 text-sm line-clamp-2 mb-0">${p.challenge || 'Transformation visuelle d\'exception.'}</p>
+                        </div>
+                    </article>
+                `).join('');
+                lucide.createIcons();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function openProjectDetails(id) {
+            const p = currentProjects.find(item => item.id === id);
+            if (!p) return;
+
+            const modal = document.getElementById('projectModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <div class="flex flex-col lg:flex-row h-full">
+                    <div class="lg:w-3/5 bg-gray-50 overflow-y-auto p-4 md:p-12">
+                        <img src="${p.main_image}" class="w-full rounded-3xl shadow-2xl mb-8" alt="${p.title}">
+                        ${p.gallery && p.gallery.length > 0 ? `
+                            <div class="grid gap-8">
+                                ${p.gallery.map(img => `<img src="${img}" class="w-full rounded-3xl shadow-xl">`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="lg:w-2/5 p-8 md:p-16 flex flex-col justify-center space-y-10 overflow-y-auto">
+                        <div>
+                            <span class="text-primary font-black uppercase tracking-[0.2em] text-xs mb-4 block">${p.category}</span>
+                            <h2 class="text-4xl md:text-5xl font-outfit font-black text-gray-900 mb-6">${p.title}</h2>
+                            <div class="w-20 h-1.5 bg-primary rounded-full"></div>
+                        </div>
+                        <div class="space-y-8">
+                            <div>
+                                <h4 class="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Le Défi</h4>
+                                <p class="text-gray-600 text-lg leading-relaxed italic">"${p.challenge || 'Non spécifié'}"</p>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Notre Solution</h4>
+                                <p class="text-gray-600 text-lg leading-relaxed">${p.solution || 'Non spécifié'}</p>
+                            </div>
+                        </div>
+                        ${p.live_link ? `
+                            <a href="${p.live_link}" target="_blank" class="inline-flex items-center space-x-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-primary transition-all self-start">
+                                <span>Voir le site live</span>
+                                <i data-lucide="external-link" class="w-5 h-5"></i>
+                            </a>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('projectModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const modalOverlay = document.getElementById('modalOverlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('hidden');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+        modalOverlay.addEventListener('click', closeModal);
+
+        document.addEventListener('DOMContentLoaded', renderProjects);
+        
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'px-4', 'max-w-4xl');
+                header.classList.remove('py-3', 'px-6', 'max-w-5xl');
+            } else {
+                header.classList.add('py-3', 'px-6', 'max-w-5xl');
+                header.classList.remove('py-2', 'px-4', 'max-w-4xl');
+            }
+        });
+    </script>
+</body>
+</html>

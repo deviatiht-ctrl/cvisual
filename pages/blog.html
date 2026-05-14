@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blog CVisual - Insights sur le design, marketing digital et tendances créatives en Haïti.">
+    <title>Blog & Insights | CVisual Agency</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        accent: '#F97316',
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary: #1E40AF;
+            --accent: #F97316;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            background-color: #fcfcfc;
+        }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+
+        .glass-nav {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #1E40AF 0%, #F97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(30, 64, 175, 0.03) 0%, rgba(30, 64, 175, 0) 70%);
+            filter: blur(100px);
+            z-index: -1;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .blog-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .blog-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px -20px rgba(0,0,0,0.1);
+        }
+
+        .category-chip {
+            transition: all 0.3s ease;
+        }
+        .category-chip.active {
+            background-color: #1E40AF;
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(30, 64, 175, 0.3);
+        }
+    </style>
+</head>
+<body class="text-gray-900">
+
+    <!-- Navbar -->
+    <div class="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4">
+        <header class="glass-nav w-full max-w-5xl rounded-full px-6 py-3 flex items-center justify-between transition-all duration-300" id="mainHeader">
+            <a href="../index.html" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg border-2 border-white">
+                    <img src="../assets/logo.jpg" class="w-full h-full object-cover" alt="Logo">
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="text-2xl font-outfit font-black tracking-tight text-gray-900">CVisual</span>
+                    <span class="text-[9px] uppercase tracking-widest text-primary font-bold">Creative Agency</span>
+                </div>
+            </a>
+            <nav class="hidden md:flex items-center space-x-1 bg-gray-900/5 p-1 rounded-full">
+                <a href="../index.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Accueil</a>
+                <a href="services.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Services</a>
+                <a href="portfolio.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Portfolio</a>
+                <a href="blog.html" class="px-4 py-2 rounded-full bg-white shadow-sm text-primary font-bold text-sm">Blog</a>
+            </nav>
+            <a href="contact.html" class="hidden sm:block px-6 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">Contact</a>
+            <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="menu" class="w-5 h-5"></i></button>
+        </header>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 z-[200] hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-md" id="menuOverlay"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white p-8 flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between mb-12">
+                <span class="text-2xl font-outfit font-black text-gray-900">Menu</span>
+                <button id="closeMenu" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-4">
+                <a href="../index.html" class="p-4 rounded-2xl hover:bg-gray-50">Accueil</a>
+                <a href="services.html" class="p-4 rounded-2xl hover:bg-gray-50">Services</a>
+                <a href="portfolio.html" class="p-4 rounded-2xl hover:bg-gray-50">Portfolio</a>
+                <a href="blog.html" class="p-4 rounded-2xl bg-primary/10 text-primary">Blog</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="relative pt-48 pb-20 overflow-hidden bg-white">
+        <div class="hero-glow top-0 right-0"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h1 class="text-5xl md:text-7xl font-outfit font-black text-gray-900 mb-6 leading-tight">
+                Insights & <span class="text-gradient">Expertise</span>
+            </h1>
+            <p class="text-xl text-gray-500 max-w-2xl mx-auto font-medium">
+                Découvrez nos analyses sur le design et le digital. Tout le contenu est géré dynamiquement.
+            </p>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="py-8 bg-white border-y border-gray-100">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <button class="category-chip active px-6 py-2.5 rounded-full bg-gray-50 text-gray-600 font-bold text-sm">Tous</button>
+                <button class="category-chip px-6 py-2.5 rounded-full bg-gray-50 text-gray-600 font-bold text-sm">Design</button>
+                <button class="category-chip px-6 py-2.5 rounded-full bg-gray-50 text-gray-600 font-bold text-sm">Marketing</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Container -->
+    <section class="py-12 pb-32" id="blog-container">
+        <div class="container mx-auto px-6">
+            <div class="text-center py-20 text-gray-400">Chargement des articles...</div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-900 text-white pt-24 pb-12">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-500">© 2025 CVisual Agency. Crafted with passion.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/public.js"></script>
+    <script>
+        lucide.createIcons();
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('hidden');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'px-4', 'max-w-4xl');
+                header.classList.remove('py-3', 'px-6', 'max-w-5xl');
+            } else {
+                header.classList.add('py-3', 'px-6', 'max-w-5xl');
+                header.classList.remove('py-2', 'px-4', 'max-w-4xl');
+            }
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 150) el.classList.add('active');
+            });
+        });
+
+        async function renderBlog() {
+            const posts = await CVisual.fetchBlog();
+            const container = document.getElementById('blog-container');
+            if (posts && posts.length > 0) {
+                container.innerHTML = `
+                    <div class="container mx-auto px-6">
+                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                            ${posts.map((p, i) => `
+                                <article class="blog-card bg-white rounded-[2.5rem] border border-gray-100 p-6 reveal" style="transition-delay: ${i * 100}ms">
+                                    <div class="relative aspect-video rounded-[2rem] overflow-hidden mb-6">
+                                        <img src="${p.image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&h=400&fit=crop'}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="space-y-4 px-2">
+                                        <div class="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-gray-400">
+                                            <span>${p.category || 'Article'}</span>
+                                            <span>${p.date || ''}</span>
+                                        </div>
+                                        <h3 class="text-2xl font-outfit font-black text-gray-900">${p.title}</h3>
+                                        <p class="text-gray-500 text-sm line-clamp-3">${p.excerpt || p.content.substring(0, 100) + '...'}</p>
+                                        <div class="pt-4 flex items-center justify-between">
+                                            <div class="flex items-center space-x-3 text-sm font-bold">
+                                                <img src="${p.author_avatar || 'assets/default-user.jpg'}" class="w-8 h-8 rounded-full">
+                                                <span>${p.author || 'CVisual Team'}</span>
+                                            </div>
+                                            <a href="#" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-primary hover:text-white transition-all"><i data-lucide="arrow-up-right" class="w-5 h-5"></i></a>
+                                        </div>
+                                    </div>
+                                </article>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            } else {
+                container.innerHTML = `<div class="container mx-auto px-6 text-center py-20 text-gray-400">Aucun article disponible pour le moment.</div>`;
+            }
+            lucide.createIcons();
+            window.dispatchEvent(new Event('scroll'));
+        }
+        document.addEventListener('DOMContentLoaded', renderBlog);
+    </script>
+</body>
+</html>

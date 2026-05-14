@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="description" content="CVisual - Agence créative d'exception en Haïti. Design web, photographie et branding.">
+    <title>CVisual | Agence Créative Digitale</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        accent: '#F97316',
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary: #1E40AF;
+            --accent: #F97316;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            background-color: #fcfcfc;
+        }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+
+        .glass-nav {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #1E40AF 0%, #F97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(30, 64, 175, 0.1) 0%, rgba(30, 64, 175, 0) 70%);
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        .card-premium {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .card-premium:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Marquee Animation */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 30s linear infinite;
+        }
+        .marquee-container:hover .animate-marquee {
+            animation-play-state: paused;
+        }
+    </style>
+</head>
+<body class="text-gray-900">
+
+    <!-- Floating Navbar -->
+    <div class="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4">
+        <header class="glass-nav w-full max-w-5xl rounded-full px-6 py-3 flex items-center justify-between transition-all duration-300" id="mainHeader">
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg border-2 border-white">
+                    <img src="assets/logo.jpg" class="w-full h-full object-cover" alt="Logo">
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="text-2xl font-outfit font-extrabold tracking-tight">CVisual</span>
+                    <span class="text-[9px] uppercase tracking-[0.2em] text-primary font-bold">Creative Agency</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center space-x-1 bg-gray-900/5 p-1 rounded-full">
+                <a href="index.html" class="px-4 py-2 rounded-full bg-white shadow-sm text-primary font-bold text-sm">Accueil</a>
+                <a href="pages/services.html" class="px-4 py-2 rounded-full text-gray-600 hover:text-primary font-semibold text-sm transition-colors">Services</a>
+                <a href="pages/portfolio.html" class="px-4 py-2 rounded-full text-gray-600 hover:text-primary font-semibold text-sm transition-colors">Portfolio</a>
+                <a href="pages/news.html" class="px-4 py-2 rounded-full text-gray-600 hover:text-primary font-semibold text-sm transition-colors">Actualités</a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <a href="pages/contact.html" class="hidden sm:flex items-center space-x-2 px-6 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all duration-300">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i><span>Contact</span>
+                </a>
+                <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="menu" class="w-5 h-5"></i></button>
+            </div>
+        </header>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 z-[200] hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-md" id="menuOverlay"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white p-8 flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between mb-12">
+                <span class="text-2xl font-outfit font-black text-gray-900">Menu</span>
+                <button id="closeMenu" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-4">
+                <a href="index.html" class="p-4 rounded-2xl bg-primary/10 text-primary font-bold">Accueil</a>
+                <a href="pages/services.html" class="p-4 rounded-2xl text-gray-600 font-semibold">Services</a>
+                <a href="pages/portfolio.html" class="p-4 rounded-2xl text-gray-600 font-semibold">Portfolio</a>
+                <a href="pages/news.html" class="p-4 rounded-2xl text-gray-600 font-semibold">Actualités</a>
+                <a href="pages/contact.html" class="p-4 rounded-2xl bg-gray-900 text-white text-center mt-4">Contact</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="relative min-h-screen flex items-center justify-center pt-24 pb-12 overflow-hidden bg-white text-center">
+        <div class="hero-glow top-0 -left-20"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-outfit font-black text-gray-900 mb-8 leading-tight tracking-tight">
+                Sublimez Votre <br> <span class="text-gradient">Image Digitale</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-500 font-medium max-w-3xl mx-auto mb-12 leading-relaxed">
+                Nous transformons les entreprises haïtiennes à travers une communication visuelle d'exception. Design local, standards internationaux.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <a href="pages/contact.html" class="px-10 py-5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xl shadow-xl hover:scale-105 transition-all">Démarrer un Projet</a>
+                <a href="pages/portfolio.html" class="px-10 py-5 rounded-full border-2 border-primary text-primary font-bold text-xl hover:bg-primary hover:text-white transition-all">Voir Portfolio</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clients Marquee -->
+    <section class="py-12 bg-white border-y border-gray-100 overflow-hidden marquee-container">
+        <div class="container mx-auto px-6 mb-8 text-center">
+            <p class="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">Ils nous font confiance</p>
+        </div>
+        <div class="animate-marquee flex items-center space-x-20" id="clients-marquee">
+            <!-- Dynamic Content -->
+            <div class="text-gray-300 font-bold text-2xl uppercase tracking-widest italic">CVisual Partnership</div>
+            <div class="text-gray-300 font-bold text-2xl uppercase tracking-widest italic">CVisual Partnership</div>
+            <div class="text-gray-300 font-bold text-2xl uppercase tracking-widest italic">CVisual Partnership</div>
+        </div>
+    </section>
+
+    <!-- Services Overview -->
+    <section class="py-32 bg-gray-50">
+        <div class="container mx-auto px-6 text-center">
+            <div class="max-w-3xl mx-auto mb-20 reveal">
+                <h2 class="text-4xl md:text-5xl font-outfit font-black mb-6">Nos Services Créatifs</h2>
+                <p class="text-xl text-gray-500">Solutions complètes pour votre croissance.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="services-grid"></div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-24 bg-gray-900 text-white text-center overflow-hidden">
+        <div class="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12">
+            <div class="reveal">
+                <div class="text-5xl font-outfit font-black text-primary mb-2" data-stat="projects">0</div>
+                <div class="text-gray-400 font-medium">Projets</div>
+            </div>
+            <div class="reveal" style="transition-delay: 100ms;">
+                <div class="text-5xl font-outfit font-black text-accent mb-2" data-stat="satisfaction">0%</div>
+                <div class="text-gray-400 font-medium">Satisfaction</div>
+            </div>
+            <div class="reveal" style="transition-delay: 200ms;">
+                <div class="text-5xl font-outfit font-black text-primary mb-2" data-stat="years">0</div>
+                <div class="text-gray-400 font-medium">Ans</div>
+            </div>
+            <div class="reveal" style="transition-delay: 300ms;">
+                <div class="text-5xl font-outfit font-black text-accent mb-2">24/7</div>
+                <div class="text-gray-400 font-medium">Support</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Teaser -->
+    <section class="py-32 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center justify-between mb-16 reveal">
+                <h2 class="text-4xl font-outfit font-black text-gray-900">Actualités & Recrutement</h2>
+                <a href="pages/news.html" class="text-primary font-bold flex items-center space-x-2 hover:translate-x-2 transition-transform">
+                    <span>Tout voir</span><i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </a>
+            </div>
+            <div id="news-teaser" class="grid md:grid-cols-2 gap-8">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-32 bg-gray-50">
+        <div class="container mx-auto px-6 text-center mb-20 reveal">
+            <h2 class="text-4xl md:text-5xl font-outfit font-black mb-6">Témoignages</h2>
+            <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto" id="testimonials-container"></div>
+        </div>
+    </section>
+
+    <footer class="bg-[#050505] text-white pt-32 pb-16 border-t border-white/5">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-16 mb-24">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-8">
+                        <img src="assets/logo.jpg" class="w-12 h-12 rounded-2xl border border-white/10" alt="Logo">
+                        <div>
+                            <h3 class="text-3xl font-outfit font-black tracking-tighter">CVISUAL</h3>
+                            <p class="text-[10px] uppercase tracking-[0.3em] text-primary font-bold">Creative Digital Agency</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-lg max-w-sm leading-relaxed mb-8">
+                        Bâtir l'avenir digital des entreprises avec une esthétique minimaliste et une technologie de pointe.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary transition-all"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary transition-all"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary transition-all"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-widest text-white mb-8">Navigation</h4>
+                    <ul class="space-y-4 text-gray-500 font-medium">
+                        <li><a href="index.html" class="hover:text-primary transition-colors">Accueil</a></li>
+                        <li><a href="pages/services.html" class="hover:text-primary transition-colors">Services</a></li>
+                        <li><a href="pages/portfolio.html" class="hover:text-primary transition-colors">Portfolio</a></li>
+                        <li><a href="pages/news.html" class="hover:text-primary transition-colors">Actualités</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-widest text-white mb-8">Opportunités</h4>
+                    <ul class="space-y-4 text-gray-500 font-medium">
+                        <li><a href="pages/recrutement.html" class="hover:text-primary transition-colors flex items-center space-x-2">
+                            <span>Carrières</span>
+                            <span class="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[8px] font-black uppercase tracking-tighter">Recrutement</span>
+                        </a></li>
+                        <li><a href="pages/contact.html" class="hover:text-primary transition-colors">Partenariats</a></li>
+                        <li><a href="pages/contact.html" class="hover:text-primary transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-gray-600 text-sm font-medium cursor-default" id="admin-secret">© 2025 CVisual Agency. Crafted with passion by CVisual Team.</p>
+                <div class="flex space-x-8 text-xs font-bold uppercase tracking-widest text-gray-600">
+                    <a href="#" class="hover:text-white transition-colors">Politique de confidentialité</a>
+                    <a href="#" class="hover:text-white transition-colors">Mentions légales</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/public.js"></script>
+    <script>
+        lucide.createIcons();
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('hidden');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'px-4', 'max-w-4xl');
+                header.classList.remove('py-3', 'px-6', 'max-w-5xl');
+            } else {
+                header.classList.add('py-3', 'px-6', 'max-w-5xl');
+                header.classList.remove('py-2', 'px-4', 'max-w-4xl');
+            }
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 150) el.classList.add('active');
+            });
+        });
+
+        async function initHome() {
+            const [services, stats, testimonials, clients, news] = await Promise.all([
+                CVisual.fetchServices(),
+                CVisual.fetchStats(),
+                CVisual.fetchTestimonials(),
+                CVisual.fetchClients(),
+                CVisual.fetchNews()
+            ]);
+
+            if (services && services.length > 0) {
+                document.getElementById('services-grid').innerHTML = services.slice(0, 3).map((s, i) => `
+                    <div class="bg-white p-10 rounded-3xl card-premium reveal" style="transition-delay: ${i * 100}ms">
+                        <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-8">
+                            <i data-lucide="${s.icon || 'star'}" class="text-primary w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">${s.title}</h3>
+                        <p class="text-gray-500 mb-8">${s.description}</p>
+                        <a href="pages/services.html" class="text-primary font-bold">En savoir plus</a>
+                    </div>
+                `).join('');
+            }
+
+            if (stats) {
+                document.querySelectorAll('[data-stat]').forEach(el => {
+                    const key = el.getAttribute('data-stat');
+                    if (stats[key]) el.textContent = stats[key];
+                });
+            }
+
+            if (clients && clients.length > 0) {
+                const marquee = document.getElementById('clients-marquee');
+                // Duplicate clients for infinite scroll effect
+                const list = [...clients, ...clients, ...clients, ...clients];
+                marquee.innerHTML = list.map(c => `
+                    <div class="flex items-center space-x-4 grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100">
+                        ${c.logo ? `<img src="${c.logo}" class="h-12 w-auto object-contain">` : `<span class="text-2xl font-black text-gray-900">${c.name}</span>`}
+                    </div>
+                `).join('');
+            }
+
+            if (news && news.length > 0) {
+                document.getElementById('news-teaser').innerHTML = news.slice(0, 2).map((item, i) => `
+                    <div class="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 reveal" style="transition-delay: ${i * 100}ms">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="px-3 py-1 rounded-full ${item.type === 'recrutement' ? 'bg-emerald-100 text-emerald-600' : 'bg-primary/10 text-primary'} font-bold text-[10px] uppercase tracking-widest">${item.type}</span>
+                            <span class="text-gray-400 text-xs">${item.date}</span>
+                        </div>
+                        <h3 class="text-2xl font-outfit font-black mb-4">${item.title}</h3>
+                        <a href="pages/news.html" class="text-primary font-bold flex items-center space-x-2">
+                            <span>Lire plus</span><i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                `).join('');
+            }
+
+            if (testimonials && testimonials.length > 0) {
+                document.getElementById('testimonials-container').innerHTML = testimonials.map((t, i) => `
+                    <div class="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm reveal" style="transition-delay: ${i * 100}ms">
+                        <p class="text-xl text-gray-600 italic mb-8">"${t.content}"</p>
+                        <div class="flex items-center space-x-4">
+                            <img src="${t.avatar || 'assets/default-user.jpg'}" class="w-14 h-14 rounded-full">
+                            <div class="text-left">
+                                <h4 class="font-bold">${t.name}</h4>
+                                <p class="text-gray-500">${t.company}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+            window.dispatchEvent(new Event('scroll'));
+        }
+        // Secret Admin Redirect
+        let clickCount = 0;
+        document.getElementById('admin-secret').addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 5) {
+                window.location.href = 'pages/admin/login.html';
+            }
+            setTimeout(() => { clickCount = 0; }, 3000); // Reset after 3 seconds
+        });
+
+        document.addEventListener('DOMContentLoaded', initHome);
+    </script>
+</body>
+</html>

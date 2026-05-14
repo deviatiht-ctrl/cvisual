@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="description" content="Découvrez l'histoire de CVisual, notre équipe d'experts et nos valeurs pour transformer l'image digitale en Haïti.">
+    <title>À Propos | CVisual Agency</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        accent: '#F97316',
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary: #1E40AF;
+            --accent: #F97316;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            background-color: #fcfcfc;
+        }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+
+        .glass-nav {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #1E40AF 0%, #F97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(30, 64, 175, 0.03) 0%, rgba(30, 64, 175, 0) 70%);
+            filter: blur(100px);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="text-gray-900">
+
+    <!-- Navbar -->
+    <div class="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4">
+        <header class="glass-nav w-full max-w-5xl rounded-full px-6 py-3 flex items-center justify-between transition-all duration-300" id="mainHeader">
+            <a href="../index.html" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg border-2 border-white">
+                    <img src="../assets/logo.jpg" class="w-full h-full object-cover" alt="Logo">
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="text-2xl font-outfit font-black tracking-tight text-gray-900">CVisual</span>
+                    <span class="text-[9px] uppercase tracking-widest text-primary font-bold">Creative Agency</span>
+                </div>
+            </a>
+            <nav class="hidden md:flex items-center space-x-1 bg-gray-900/5 p-1 rounded-full">
+                <a href="../index.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Accueil</a>
+                <a href="services.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Services</a>
+                <a href="portfolio.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Portfolio</a>
+                <a href="about.html" class="px-4 py-2 rounded-full bg-white shadow-sm text-primary font-bold text-sm">À Propos</a>
+            </nav>
+            <a href="contact.html" class="hidden sm:block px-6 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">Contact</a>
+            <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="menu" class="w-5 h-5"></i></button>
+        </header>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 z-[200] hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-md" id="menuOverlay"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white p-8 flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between mb-12">
+                <span class="text-2xl font-outfit font-black text-gray-900">Menu</span>
+                <button id="closeMenu" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-4">
+                <a href="../index.html" class="p-4 rounded-2xl hover:bg-gray-50">Accueil</a>
+                <a href="services.html" class="p-4 rounded-2xl hover:bg-gray-50">Services</a>
+                <a href="portfolio.html" class="p-4 rounded-2xl hover:bg-gray-50">Portfolio</a>
+                <a href="about.html" class="p-4 rounded-2xl bg-primary/10 text-primary">À Propos</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="relative pt-48 pb-20 overflow-hidden bg-white">
+        <div class="hero-glow top-0 right-0"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h1 class="text-5xl md:text-7xl font-outfit font-black text-gray-900 mb-6 leading-tight">
+                L'Excellence <span class="text-gradient">Visionnaire</span> <br> de CVisual
+            </h1>
+            <p class="text-xl text-gray-500 max-w-2xl mx-auto font-medium">
+                Découvrez notre histoire et notre équipe d'experts dévoués.
+            </p>
+        </div>
+    </section>
+
+    <!-- History -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8 reveal">
+                    <h2 class="text-4xl font-outfit font-black text-gray-900">Plus qu'une Agence, un Partenaire</h2>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        Basée à Delmas 33, CVisual transforme le paysage digital haïtien depuis 2020. Nous allions créativité et technologie pour propulser votre entreprise.
+                    </p>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="bg-gray-50 p-8 rounded-[2rem] border border-gray-100">
+                            <div class="text-4xl font-black text-primary mb-2" data-stat="projects">150+</div>
+                            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">Projets</div>
+                        </div>
+                        <div class="bg-gray-50 p-8 rounded-[2rem] border border-gray-100">
+                            <div class="text-4xl font-black text-accent mb-2" data-stat="satisfaction">98%</div>
+                            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">Satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&h=600&fit=crop" class="rounded-[3rem] shadow-2xl border-8 border-white" alt="Team Work">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Container -->
+    <section class="py-24 bg-gray-50" id="team-container">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-4xl md:text-5xl font-outfit font-black mb-4">Notre Équipe d'Experts</h2>
+                <p class="text-xl text-gray-500">Des talents dévoués à votre succès.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div class="col-span-full text-center py-20 text-gray-400">Chargement de l'équipe...</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#050505] text-white pt-32 pb-16 border-t border-white/5">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-16 mb-24">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-8">
+                        <img src="../assets/logo.jpg" class="w-12 h-12 rounded-2xl border border-white/10" alt="Logo">
+                        <div>
+                            <h3 class="text-3xl font-outfit font-black tracking-tighter text-white">CVISUAL</h3>
+                            <p class="text-[10px] uppercase tracking-[0.3em] text-primary font-bold">Creative Digital Agency</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-lg max-w-sm leading-relaxed mb-8">
+                        Bâtir l'avenir digital des entreprises avec une esthétique minimaliste et une technologie de pointe.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary transition-all"><i data-lucide="instagram" class="w-5 h-5 text-white"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary transition-all"><i data-lucide="linkedin" class="w-5 h-5 text-white"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary transition-all"><i data-lucide="twitter" class="w-5 h-5 text-white"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-widest text-white mb-8">Navigation</h4>
+                    <ul class="space-y-4 text-gray-500 font-medium">
+                        <li><a href="../index.html" class="hover:text-primary transition-colors">Accueil</a></li>
+                        <li><a href="services.html" class="hover:text-primary transition-colors">Services</a></li>
+                        <li><a href="portfolio.html" class="hover:text-primary transition-colors">Portfolio</a></li>
+                        <li><a href="news.html" class="hover:text-primary transition-colors">Actualités</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-widest text-white mb-8">Opportunités</h4>
+                    <ul class="space-y-4 text-gray-500 font-medium">
+                        <li><a href="recrutement.html" class="hover:text-primary transition-colors flex items-center space-x-2">
+                            <span>Carrières</span>
+                            <span class="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[8px] font-black uppercase tracking-tighter">Recrutement</span>
+                        </a></li>
+                        <li><a href="contact.html" class="hover:text-primary transition-colors">Partenariats</a></li>
+                        <li><a href="contact.html" class="hover:text-primary transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-gray-600 text-sm font-medium">© 2025 CVisual Agency. Crafted with passion by CVisual Team.</p>
+                <div class="flex space-x-8 text-xs font-bold uppercase tracking-widest text-gray-600">
+                    <a href="#" class="hover:text-white transition-colors">Politique de confidentialité</a>
+                    <a href="#" class="hover:text-white transition-colors">Mentions légales</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/public.js"></script>
+    <script>
+        lucide.createIcons();
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('hidden');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'px-4', 'max-w-4xl');
+                header.classList.remove('py-3', 'px-6', 'max-w-5xl');
+            } else {
+                header.classList.add('py-3', 'px-6', 'max-w-5xl');
+                header.classList.remove('py-2', 'px-4', 'max-w-4xl');
+            }
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 150) el.classList.add('active');
+            });
+        });
+
+        async function initAbout() {
+            const stats = await CVisual.fetchStats();
+            if (stats) {
+                document.querySelectorAll('[data-stat]').forEach(el => {
+                    const key = el.getAttribute('data-stat');
+                    if (stats[key]) el.textContent = stats[key];
+                });
+            }
+
+            const team = await CVisual.fetchTeam();
+            const container = document.getElementById('team-container');
+            if (team && team.length > 0) {
+                container.querySelector('.grid').innerHTML = team.map((m, i) => `
+                    <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm reveal group" style="transition-delay: ${i * 100}ms">
+                        <div class="relative mb-6 overflow-hidden rounded-[2rem] aspect-[4/5]">
+                            <img src="${m.avatar || 'assets/default-user.jpg'}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        </div>
+                        <div class="px-2">
+                            <h3 class="text-2xl font-bold mb-1">${m.name}</h3>
+                            <p class="text-primary font-bold mb-4">${m.role}</p>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-6">${m.bio || ''}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                // Keep some default members if no dynamic team found, or clear it
+                container.querySelector('.grid').innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 font-medium">L\'équipe sera bientôt affichée.</div>';
+            }
+            lucide.createIcons();
+            window.dispatchEvent(new Event('scroll'));
+        }
+        document.addEventListener('DOMContentLoaded', initAbout);
+    </script>
+</body>
+</html>
