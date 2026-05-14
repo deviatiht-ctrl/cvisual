@@ -123,6 +123,15 @@ const AdminApp = {
             const container = document.getElementById('global-loader');
             if (container) setTimeout(() => container.remove(), 300);
         }
+    async uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch(`${API_BASE}/admin/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${this.getToken()}` },
+            body: formData
+        });
+        return await response.json();
     }
 };
 

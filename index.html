@@ -330,16 +330,19 @@
             ]);
 
             if (services && services.length > 0) {
-                document.getElementById('services-grid').innerHTML = services.slice(0, 3).map((s, i) => `
-                    <div class="bg-white p-10 rounded-3xl card-premium reveal" style="transition-delay: ${i * 100}ms">
-                        <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-8">
-                            <i data-lucide="${s.icon || 'star'}" class="text-primary w-8 h-8"></i>
+                document.getElementById('services-grid').innerHTML = services.slice(0, 3).map((s, i) => {
+                    const imgUrl = CVisual.getImageUrl(s.image) || 'assets/placeholder-service.jpg';
+                    return `
+                        <div class="bg-white p-10 rounded-3xl card-premium reveal" style="transition-delay: ${i * 100}ms">
+                            <div class="w-full h-32 mb-6 rounded-2xl overflow-hidden bg-gray-100">
+                                <img src="${imgUrl}" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4">${s.title}</h3>
+                            <p class="text-gray-500 mb-8">${s.description}</p>
+                            <a href="pages/services.html" class="text-primary font-bold">En savoir plus</a>
                         </div>
-                        <h3 class="text-2xl font-bold mb-4">${s.title}</h3>
-                        <p class="text-gray-500 mb-8">${s.description}</p>
-                        <a href="pages/services.html" class="text-primary font-bold">En savoir plus</a>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             if (stats) {
@@ -351,28 +354,33 @@
 
             if (clients && clients.length > 0) {
                 const marquee = document.getElementById('clients-marquee');
-                // Duplicate clients for infinite scroll effect
                 const list = [...clients, ...clients, ...clients, ...clients];
                 marquee.innerHTML = list.map(c => `
                     <div class="flex items-center space-x-4 grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100">
-                        ${c.logo ? `<img src="${c.logo}" class="h-12 w-auto object-contain">` : `<span class="text-2xl font-black text-gray-900">${c.name}</span>`}
+                        ${c.logo ? `<img src="${CVisual.getImageUrl(c.logo)}" class="h-12 w-auto object-contain">` : `<span class="text-2xl font-black text-gray-900">${c.name}</span>`}
                     </div>
                 `).join('');
             }
 
             if (news && news.length > 0) {
-                document.getElementById('news-teaser').innerHTML = news.slice(0, 2).map((item, i) => `
-                    <div class="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 reveal" style="transition-delay: ${i * 100}ms">
-                        <div class="flex items-center space-x-3 mb-4">
-                            <span class="px-3 py-1 rounded-full ${item.type === 'recrutement' ? 'bg-emerald-100 text-emerald-600' : 'bg-primary/10 text-primary'} font-bold text-[10px] uppercase tracking-widest">${item.type}</span>
-                            <span class="text-gray-400 text-xs">${item.date}</span>
+                document.getElementById('news-teaser').innerHTML = news.slice(0, 2).map((item, i) => {
+                    const imgUrl = CVisual.getImageUrl(item.image) || 'assets/placeholder-news.jpg';
+                    return `
+                        <div class="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 reveal overflow-hidden" style="transition-delay: ${i * 100}ms">
+                            <div class="h-40 -mx-8 -mt-8 mb-8 overflow-hidden">
+                                <img src="${imgUrl}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex items-center space-x-3 mb-4">
+                                <span class="px-3 py-1 rounded-full ${item.type === 'recrutement' ? 'bg-emerald-100 text-emerald-600' : 'bg-primary/10 text-primary'} font-bold text-[10px] uppercase tracking-widest">${item.type}</span>
+                                <span class="text-gray-400 text-xs">${item.date}</span>
+                            </div>
+                            <h3 class="text-2xl font-outfit font-black mb-4">${item.title}</h3>
+                            <a href="pages/news.html" class="text-primary font-bold flex items-center space-x-2">
+                                <span>Lire plus</span><i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
                         </div>
-                        <h3 class="text-2xl font-outfit font-black mb-4">${item.title}</h3>
-                        <a href="pages/news.html" class="text-primary font-bold flex items-center space-x-2">
-                            <span>Lire plus</span><i data-lucide="chevron-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             if (testimonials && testimonials.length > 0) {
@@ -380,7 +388,7 @@
                     <div class="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm reveal" style="transition-delay: ${i * 100}ms">
                         <p class="text-xl text-gray-600 italic mb-8">"${t.content}"</p>
                         <div class="flex items-center space-x-4">
-                            <img src="${t.avatar || 'assets/default-user.jpg'}" class="w-14 h-14 rounded-full">
+                            <img src="${CVisual.getImageUrl(t.avatar) || 'assets/default-user.jpg'}" class="w-14 h-14 rounded-full">
                             <div class="text-left">
                                 <h4 class="font-bold">${t.name}</h4>
                                 <p class="text-gray-500">${t.company}</p>

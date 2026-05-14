@@ -84,6 +84,18 @@
                         <input name="roi" id="formRoi" type="text" required class="w-full border rounded-lg p-2">
                     </div>
                     <div>
+                        <label class="block text-sm font-medium mb-1">Image du Service</label>
+                        <div class="relative group">
+                            <input type="file" id="formImageFile" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="w-full p-4 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center bg-gray-50 group-hover:bg-blue-50 group-hover:border-blue-200 transition-all">
+                                <i data-lucide="image" class="w-6 h-6 text-gray-300 group-hover:text-blue-500 mb-1"></i>
+                                <p class="text-[10px] text-gray-500" id="imageFileName">Choisir une image</p>
+                            </div>
+                        </div>
+                        <input type="hidden" id="formImage" name="image">
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-medium mb-1">Icône (Clé)</label>
                         <select name="icon" id="formIcon" class="w-full border rounded-lg p-2">
                             <option value="website">Website</option>
@@ -104,40 +116,44 @@
         </div>
     </main>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../../assets/js/admin.js"></script>
     <script>
+        lucide.createIcons();
         let servicesCache = [];
+
+        document.getElementById('formImageFile').addEventListener('change', e => {
+            const name = e.target.files[0] ? e.target.files[0].name : 'Choisir une image';
+            document.getElementById('imageFileName').textContent = name;
+        });
 
         async function loadServices() {
             const services = await AdminApp.request('/services');
             if (services && !services.error) {
                 servicesCache = services;
                 const list = document.getElementById('servicesList');
-                list.innerHTML = servicesCache.map(s => `
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <div class="flex items-center justify-between mb-4">
-                            <h4 class="font-bold text-lg">${s.name}</h4>
-                            <div class="flex space-x-2">
-                                <button onclick="editService(${s.id})" class="text-blue-600 hover:text-blue-700 font-medium text-sm">Modifier</button>
-                                <button onclick="deleteService(${s.id})" class="text-red-600 hover:text-red-700 font-medium text-sm">Supprimer</button>
+                list.innerHTML = servicesCache.map(s => {
+                    const imgUrl = s.image ? (s.image.startsWith('http') ? s.image : `${API_BASE.replace('/api','')}${s.image}`) : '../../assets/placeholder-service.jpg';
+                    return `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group">
+                            <div class="h-32 bg-gray-100 relative overflow-hidden">
+                                <img src="${imgUrl}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/10"></div>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-bold text-lg">${s.title}</h4>
+                                    <div class="flex space-x-2">
+                                        <button onclick="editService(${s.id})" class="text-blue-600 hover:text-blue-700 font-medium text-sm">Modifier</button>
+                                        <button onclick="deleteService(${s.id})" class="text-red-600 hover:text-red-700 font-medium text-sm">Supprimer</button>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-500 line-clamp-2">${s.description || ''}</p>
                             </div>
                         </div>
-                        <div class="space-y-2 text-sm text-gray-600">
-                            <div class="flex justify-between">
-                                <span>Prix:</span>
-                                <span class="font-semibold text-gray-900">${s.price}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Délai:</span>
-                                <span class="font-semibold text-gray-900">${s.delay}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>ROI:</span>
-                                <span class="font-semibold text-success font-bold">${s.roi}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+                lucide.createIcons();
             }
         }
 
@@ -150,6 +166,7 @@
             if (!isEdit) {
                 form.reset();
                 document.getElementById('serviceIdField').value = "";
+                document.getElementById('imageFileName').textContent = 'Choisir une image';
                 title.textContent = "Ajouter un Service";
                 submitBtn.textContent = "Créer le service";
             } else {
@@ -165,20 +182,16 @@
 
             openModal(true);
             document.getElementById('serviceIdField').value = s.id;
-            document.getElementById('formName').value = s.name;
-            document.getElementById('formPrice').value = s.price;
-            document.getElementById('formDelay').value = s.delay;
-            document.getElementById('formRoi').value = s.roi;
+            document.getElementById('formName').value = s.title;
             document.getElementById('formIcon').value = s.icon || 'website';
+            document.getElementById('formImage').value = s.image || '';
+            document.getElementById('imageFileName').textContent = s.image ? 'Image actuelle conservée' : 'Choisir une image';
         }
 
         async function deleteService(id) {
             if (!confirm('Supprimer ce service ?')) return;
-            const res = await AdminApp.request(`/services/${id}`, { method: 'DELETE' });
-            if (res && res.message) {
-                AdminApp.showToast('Service supprimé');
-                loadServices();
-            }
+            const res = await AdminApp.request(`/admin/services/${id}`, { method: 'DELETE' });
+            if (res.success) loadServices();
         }
 
         function closeModal() {
@@ -187,17 +200,35 @@
 
         document.getElementById('serviceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Traitement...';
+
             const id = document.getElementById('serviceIdField').value;
+            const fileInput = document.getElementById('formImageFile');
+            
+            let imageUrl = document.getElementById('formImage').value;
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                const token = AdminApp.getToken();
+                const uploadRes = await fetch(`${API_BASE}/admin/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadData.success) imageUrl = uploadData.url;
+            }
+
             const data = {
-                name: document.getElementById('formName').value,
-                price: document.getElementById('formPrice').value,
-                delay: document.getElementById('formDelay').value,
-                roi: document.getElementById('formRoi').value,
+                title: document.getElementById('formName').value,
+                description: 'Service premium par CVisual Agency', // Default for now
                 icon: document.getElementById('formIcon').value,
-                anchor: '#' + document.getElementById('formName').value.toLowerCase().replace(/ /g, '-')
+                image: imageUrl
             };
 
-            const url = id ? `/services/${id}` : '/services';
+            const url = id ? `/admin/services/${id}` : '/admin/services';
             const method = id ? 'PUT' : 'POST';
 
             const res = await AdminApp.request(url, {
@@ -205,13 +236,12 @@
                 body: JSON.stringify(data)
             });
 
-            if (res && res.message) {
-                AdminApp.showToast(id ? 'Service mis à jour !' : 'Service créé !');
+            if (res.success) {
                 closeModal();
                 loadServices();
-            } else {
-                alert('Erreur: ' + (res?.error || 'Inconnue'));
             }
+            btn.disabled = false;
+            btn.textContent = 'Enregistrer';
         });
 
         loadServices();

@@ -71,8 +71,14 @@
                     <input type="text" id="clientName" required class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">URL du Logo</label>
-                    <input type="url" id="clientLogo" required placeholder="https://..." class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Logo de l'entreprise</label>
+                    <div class="relative group">
+                        <input type="file" id="clientLogoFile" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="w-full p-6 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center bg-gray-50 group-hover:bg-blue-50 group-hover:border-blue-200 transition-all">
+                            <i data-lucide="image" class="w-8 h-8 text-gray-300 group-hover:text-blue-500 mb-2"></i>
+                            <p class="text-xs text-gray-500" id="logoFileName">Choisir un logo</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex space-x-4 pt-4">
                     <button type="button" onclick="closeModal()" class="flex-1 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition">Annuler</button>
@@ -85,6 +91,11 @@
     <script src="../../assets/js/admin.js"></script>
     <script>
         lucide.createIcons();
+
+        document.getElementById('clientLogoFile').addEventListener('change', e => {
+            const name = e.target.files[0] ? e.target.files[0].name : 'Choisir un logo';
+            document.getElementById('logoFileName').textContent = name;
+        });
 
         async function loadClients() {
             const list = document.getElementById('clientsList');
@@ -104,37 +115,70 @@
                 return;
             }
 
-            list.innerHTML = data.map(c => `
-                <div class="card p-6 flex flex-col items-center group relative overflow-hidden">
-                    <div class="w-full h-32 flex items-center justify-center mb-4 bg-gray-50 rounded-2xl p-6 transition-all group-hover:scale-105">
-                        <img src="${c.logo}" alt="${c.name}" class="max-w-full max-h-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+            list.innerHTML = data.map(c => {
+                const logoUrl = c.logo.startsWith('http') ? c.logo : `${API_BASE.replace('/api','')}${c.logo}`;
+                return `
+                    <div class="card p-6 flex flex-col items-center group relative overflow-hidden">
+                        <div class="w-full h-32 flex items-center justify-center mb-4 bg-gray-50 rounded-2xl p-6 transition-all group-hover:scale-105">
+                            <img src="${logoUrl}" alt="${c.name}" class="max-w-full max-h-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+                        </div>
+                        <h3 class="font-bold text-gray-800 text-center">${c.name}</h3>
+                        <button onclick="deleteClient(${c.id})" class="absolute top-4 right-4 p-2 bg-red-50 text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
                     </div>
-                    <h3 class="font-bold text-gray-800 text-center">${c.name}</h3>
-                    <button onclick="deleteClient(${c.id})" class="absolute top-4 right-4 p-2 bg-red-50 text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             lucide.createIcons();
         }
 
         document.getElementById('clientForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Chargement...';
+
             const name = document.getElementById('clientName').value;
-            const logo = document.getElementById('clientLogo').value;
+            const fileInput = document.getElementById('clientLogoFile');
             
+            let logoUrl = '';
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                
+                // Use a direct fetch for file upload as AdminApp.request might need adjustments for FormData
+                const token = AdminApp.getToken();
+                const uploadRes = await fetch(`${API_BASE}/admin/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadData.success) {
+                    logoUrl = uploadData.url;
+                } else {
+                    alert('Erreur lors de l\'upload du logo.');
+                    btn.disabled = false;
+                    btn.textContent = 'Enregistrer';
+                    return;
+                }
+            }
+
             const res = await AdminApp.request('/admin/clients', {
                 method: 'POST',
-                body: JSON.stringify({ name, logo })
+                body: JSON.stringify({ name, logo: logoUrl })
             });
 
             if (res.success) {
                 closeModal();
                 loadClients();
                 e.target.reset();
+                document.getElementById('logoFileName').textContent = 'Choisir un logo';
             } else {
                 alert('Erreur lors de l\'ajout.');
             }
+            btn.disabled = false;
+            btn.textContent = 'Enregistrer';
         });
 
         async function deleteClient(id) {

@@ -68,8 +68,15 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium mb-1">Image Principale (Laisser vide si pas de changement)</label>
-                        <input name="main_image" type="file" class="w-full border rounded-lg p-2">
+                        <label class="block text-sm font-medium mb-1">Image Principale</label>
+                        <div class="relative group">
+                            <input type="file" id="formMainImageFile" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center bg-gray-50 group-hover:bg-blue-50 group-hover:border-blue-200 transition-all">
+                                <i data-lucide="image" class="w-6 h-6 text-gray-300 group-hover:text-blue-500 mb-1"></i>
+                                <p class="text-[10px] text-gray-500" id="mainImageFileName">Choisir une image</p>
+                            </div>
+                        </div>
+                        <input type="hidden" id="formMainImage" name="main_image">
                     </div>
 
                     <div>
@@ -101,29 +108,35 @@
 
     <script src="../../assets/js/admin.js"></script>
     <script>
-        let projectsCache = [];
+        document.getElementById('formMainImageFile').addEventListener('change', e => {
+            const name = e.target.files[0] ? e.target.files[0].name : 'Choisir une image';
+            document.getElementById('mainImageFileName').textContent = name;
+        });
 
         async function loadProjects() {
             const projects = await AdminApp.request('/portfolio');
             if (projects && !projects.error) {
                 projectsCache = projects;
                 const list = document.getElementById('projectList');
-                list.innerHTML = projectsCache.map(p => `
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group">
-                        <div class="relative h-48 overflow-hidden">
-                            <img src="${p.main_image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition"></div>
-                        </div>
-                        <div class="p-4">
-                            <h4 class="font-bold text-lg">${p.title}</h4>
-                            <p class="text-sm text-gray-500">${p.category}</p>
-                            <div class="mt-4 flex space-x-2">
-                                <button onclick="editProject(${p.id})" class="text-blue-600 text-sm font-medium">Modifier</button>
-                                <button onclick="deleteProject(${p.id})" class="text-red-600 text-sm font-medium">Supprimer</button>
+                list.innerHTML = projectsCache.map(p => {
+                    const imgUrl = p.main_image ? (p.main_image.startsWith('http') ? p.main_image : `${API_BASE.replace('/api','')}${p.main_image}`) : '../../assets/placeholder-portfolio.jpg';
+                    return `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group">
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition"></div>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-bold text-lg">${p.title}</h4>
+                                <p class="text-sm text-gray-500">${p.category}</p>
+                                <div class="mt-4 flex space-x-2">
+                                    <button onclick="editProject(${p.id})" class="text-blue-600 text-sm font-medium">Modifier</button>
+                                    <button onclick="deleteProject(${p.id})" class="text-red-600 text-sm font-medium">Supprimer</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
         }
 
@@ -136,13 +149,13 @@
             if (!isEdit) {
                 document.getElementById('projectForm').reset();
                 projectIdField.value = "";
+                document.getElementById('formMainImage').value = "";
+                document.getElementById('mainImageFileName').textContent = 'Choisir une image';
                 modalTitle.textContent = "Ajouter un Projet";
                 submitBtn.textContent = "Publier le projet";
-                document.querySelector('input[name="main_image"]').required = true;
             } else {
                 modalTitle.textContent = "Modifier le Projet";
                 submitBtn.textContent = "Enregistrer les modifications";
-                document.querySelector('input[name="main_image"]').required = false;
             }
 
             modal.classList.remove('hidden');
@@ -161,40 +174,54 @@
             document.getElementById('formChallenge').value = p.challenge || "";
             document.getElementById('formSolution').value = p.solution || "";
             document.getElementById('formLiveLink').value = p.live_link || "";
+            document.getElementById('formMainImage').value = p.main_image || "";
+            document.getElementById('mainImageFileName').textContent = p.main_image ? 'Image actuelle conservée' : 'Choisir une image';
         }
 
         async function deleteProject(id) {
             if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) return;
-            const res = await AdminApp.request(`/portfolio/${id}`, { method: 'DELETE' });
-            if (res && res.message) {
-                AdminApp.showToast('Projet supprimé');
-                loadProjects();
-            } else {
-                alert('Erreur: ' + (res?.error || 'Impossible de supprimer'));
-            }
+            const res = await AdminApp.request(`/admin/portfolio/${id}`, { method: 'DELETE' });
+            if (res.success) loadProjects();
         }
 
         document.getElementById('projectForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Enregistrement...';
+
             const projectId = document.getElementById('projectIdField').value;
+            const fileInput = document.getElementById('formMainImageFile');
             
-            const url = projectId ? `/portfolio/${projectId}` : '/portfolio';
+            let mainImage = document.getElementById('formMainImage').value;
+            if (fileInput.files.length > 0) {
+                const uploadRes = await AdminApp.uploadFile(fileInput.files[0]);
+                if (uploadRes.success) mainImage = uploadRes.url;
+            }
+
+            const data = {
+                title: document.getElementById('formTitle').value,
+                category: document.getElementById('formCategory').value,
+                main_image: mainImage,
+                challenge: document.getElementById('formChallenge').value,
+                solution: document.getElementById('formSolution').value,
+                live_link: document.getElementById('formLiveLink').value
+            };
+            
+            const url = projectId ? `/admin/portfolio/${projectId}` : '/admin/portfolio';
             const method = projectId ? 'PUT' : 'POST';
 
             const res = await AdminApp.request(url, {
                 method: method,
-                body: formData
+                body: JSON.stringify(data)
             });
 
-            if (res && res.message) {
+            if (res.success) {
                 closeModal();
                 loadProjects();
-                AdminApp.showToast(projectId ? 'Projet mis à jour !' : 'Projet ajouté !');
-                e.target.reset();
-            } else {
-                alert('Erreur: ' + (res?.error || res?.msg || 'Une erreur est survenue'));
             }
+            btn.disabled = false;
+            btn.textContent = 'Enregistrer';
         });
 
         loadProjects();

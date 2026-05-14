@@ -207,5 +207,12 @@ const CVisual = {
                 if (container) container.remove();
             }, 300);
         }
+    },
+
+    getImageUrl(path) {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        const base = API_BASE.replace('/api', '');
+        return `${base}${path}`;
     }
 };
