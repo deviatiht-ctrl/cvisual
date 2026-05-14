@@ -174,7 +174,7 @@
         <div class="container mx-auto px-6 mb-8 text-center">
             <p class="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">Ils nous font confiance</p>
         </div>
-        <div class="animate-marquee flex items-center space-x-20" id="clients-marquee">
+        <div class="animate-marquee flex items-center" id="clients-marquee">
             <!-- Dynamic Content -->
             <div class="text-gray-300 font-bold text-2xl uppercase tracking-widest italic">CVisual Partnership</div>
             <div class="text-gray-300 font-bold text-2xl uppercase tracking-widest italic">CVisual Partnership</div>
@@ -354,12 +354,36 @@
 
             if (clients && clients.length > 0) {
                 const marquee = document.getElementById('clients-marquee');
-                const list = [...clients, ...clients]; 
-                marquee.innerHTML = list.map(c => `
-                    <div class="flex items-center space-x-4 transition-all opacity-100">
-                        ${c.logo ? `<img src="${CVisual.getImageUrl(c.logo)}" class="h-12 w-auto object-contain">` : `<span class="text-2xl font-black text-gray-900">${c.name}</span>`}
-                    </div>
-                `).join('');
+                marquee.innerHTML = ''; // Clear first
+                // Duplicate once for infinite loop animation (translateX -50%)
+                const list = [...clients, ...clients];
+                
+                marquee.innerHTML = list.map((c, index) => {
+                    const imgUrl = CVisual.getImageUrl(c.logo);
+                    return `
+                        <div class="flex-shrink-0 px-10 flex items-center justify-center">
+                            ${c.logo ? 
+                                `<img src="${imgUrl}" 
+                                      alt="${c.name}" 
+                                      class="h-10 md:h-12 w-auto object-contain opacity-90 hover:opacity-100 transition-all duration-300"
+                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                 <span class="hidden text-lg font-bold text-gray-300 uppercase tracking-widest">${c.name}</span>` : 
+                                `<span class="text-lg font-bold text-gray-300 uppercase tracking-widest">${c.name}</span>`
+                            }
+                        </div>
+                    `;
+                }).join('');
+                
+                // Adjust animation speed based on number of items
+                const duration = Math.max(20, clients.length * 4);
+                marquee.style.animationDuration = `${duration}s`;
+            } else {
+                // Show placeholders if no clients
+                document.getElementById('clients-marquee').innerHTML = `
+                    <div class="px-10 text-gray-300 font-bold text-xl uppercase tracking-widest italic">CVisual Partnership</div>
+                    <div class="px-10 text-gray-300 font-bold text-xl uppercase tracking-widest italic">CVisual Excellence</div>
+                    <div class="px-10 text-gray-300 font-bold text-xl uppercase tracking-widest italic">CVisual Creative</div>
+                `;
             }
 
             if (news && news.length > 0) {
