@@ -86,7 +86,7 @@
     <script src="../../assets/js/admin.js"></script>
     <script>
         async function loadInquiries() {
-            const inquiries = await AdminApp.request('/inquiries');
+            const inquiries = await AdminApp.request('/admin/inquiries');
             const tbody = document.getElementById('inquiryTable');
             tbody.innerHTML = inquiries.map(i => `
                 <tr class="hover:bg-gray-50 transition cursor-pointer" onclick="viewMessage(${i.id})">
@@ -109,7 +109,7 @@
         }
 
         async function viewMessage(id) {
-            const i = await AdminApp.request(`/inquiries/${id}`);
+            const i = await AdminApp.request(`/admin/inquiries/${id}`);
             if (!i || i.error) return;
 
             document.getElementById('messageModal').classList.remove('hidden');
@@ -163,12 +163,11 @@
         }
 
         async function updateStatus(id, newStatus) {
-            const res = await AdminApp.request(`/inquiries/${id}`, {
+            const res = await AdminApp.request(`/admin/inquiries/${id}`, {
                 method: 'PUT',
                 body: JSON.stringify({ status: newStatus })
             });
-            if (res && res.message) {
-                AdminApp.showToast('Statut mis à jour');
+            if (res && res.success) {
                 loadInquiries();
             }
         }
