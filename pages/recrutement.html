@@ -190,6 +190,14 @@
                     } else if (q.type === 'select') {
                         const opts = q.options ? q.options.split(',').map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join('') : '';
                         input = `<select name="q-${q.id}" ${q.required ? 'required' : ''} class="w-full p-5 rounded-3xl input-glass appearance-none"><option value="">Choisir une option...</option>${opts}</select>`;
+                    } else if (q.type === 'checkbox') {
+                        const opts = q.options ? q.options.split(',').map(o => `
+                            <label class="flex items-center space-x-3 p-3 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-all cursor-pointer">
+                                <input type="checkbox" name="q-${q.id}" value="${o.trim()}" class="w-5 h-5 rounded-md border-gray-300 text-primary focus:ring-primary">
+                                <span class="text-sm">${o.trim()}</span>
+                            </label>
+                        `).join('') : '';
+                        input = `<div class="space-y-2">${opts}</div>`;
                     } else {
                         input = `<input type="${q.type}" name="q-${q.id}" ${q.required ? 'required' : ''} class="w-full p-5 rounded-3xl input-glass" placeholder="Votre réponse...">`;
                     }
@@ -230,7 +238,14 @@
             const customAnswers = {};
             document.querySelectorAll('#dynamicQuestions [name^="q-"]').forEach(input => {
                 const qId = input.name.replace('q-', '');
-                customAnswers[qId] = input.value;
+                if (input.type === 'checkbox') {
+                    if (input.checked) {
+                        if (!customAnswers[qId]) customAnswers[qId] = [];
+                        customAnswers[qId].push(input.value);
+                    }
+                } else {
+                    customAnswers[qId] = input.value;
+                }
             });
 
             const payload = {
