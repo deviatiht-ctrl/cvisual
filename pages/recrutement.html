@@ -48,8 +48,8 @@
                     <p class="text-[10px] uppercase tracking-[0.3em] text-primary font-bold">Creative Digital Agency</p>
                 </div>
             </div>
-            <h2 class="text-4xl font-outfit font-black text-gray-900 mb-4 tracking-tight">Rejoignez l'élite.</h2>
-            <p class="text-gray-500 text-lg max-w-xl mx-auto">Nous bâtissons le futur digital avec les meilleurs talents.</p>
+            <h2 id="displayJobTitle" class="text-4xl font-outfit font-black text-gray-900 mb-4 tracking-tight">Rejoignez l'élite.</h2>
+            <p id="displayJobDetails" class="text-gray-500 text-lg max-w-xl mx-auto">Nous bâtissons le futur digital avec les meilleurs talents.</p>
         </div>
 
         <div class="glass rounded-[3rem] p-8 md:p-16 relative overflow-hidden shadow-2xl">
@@ -145,9 +145,18 @@
             document.getElementById('fileName').textContent = name;
         });
 
-        // Load Dynamic Questions
-        async function loadQuestions() {
+        // Load Dynamic Questions & Job Info
+        async function loadData() {
             try {
+                // Fetch Job Info
+                const infoRes = await fetch(`${API_BASE}/recruitment/info`);
+                const info = await infoRes.json();
+                if (info && info.job_title) {
+                    document.getElementById('displayJobTitle').textContent = info.job_title;
+                    document.getElementById('displayJobDetails').innerHTML = (info.job_details || 'Nous bâtissons le futur digital with les meilleurs talents.').replace(/\n/g, '<br>');
+                }
+
+                // Fetch Questions
                 const res = await fetch(`${API_BASE}/recruitment/questions`);
                 const questions = await res.json();
                 const container = document.getElementById('dynamicQuestions');
@@ -238,7 +247,7 @@
             }
         });
 
-        loadQuestions();
+        loadData();
     </script>
 </body>
 </html>

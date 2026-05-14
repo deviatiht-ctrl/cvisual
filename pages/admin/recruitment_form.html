@@ -199,12 +199,14 @@
 
         async function loadQuestions() {
             const list = document.getElementById('questionsList');
-            const data = await AdminApp.request('/recruitment/questions');
+            const data = await AdminApp.request('/recruitment/questions') || [];
             const jobInfo = await AdminApp.request('/admin/recruitment/info');
             
             // Load Job Info
-            document.getElementById('jobTitle').value = jobInfo.job_title || '';
-            document.getElementById('jobDetails').value = jobInfo.job_details || '';
+            if (jobInfo) {
+                document.getElementById('jobTitle').value = jobInfo.job_title || '';
+                document.getElementById('jobDetails').value = jobInfo.job_details || '';
+            }
 
             questionsCache = data; 
             
@@ -247,12 +249,15 @@
             
             if (!title) return alert('Veuillez entrer un titre de poste.');
             
-            const res = await AdminApp.request('/admin/recruitment/info', 'POST', {
-                job_title: title,
-                job_details: details
+            const res = await AdminApp.request('/admin/recruitment/info', {
+                method: 'POST',
+                body: JSON.stringify({
+                    job_title: title,
+                    job_details: details
+                })
             });
             
-            if (res.success) alert('Informations du poste enregistrées avec succès!');
+            if (res && res.success) alert('Informations du poste enregistrées avec succès!');
         }
 
         function editQuestion(id) {
