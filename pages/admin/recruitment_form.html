@@ -74,12 +74,34 @@
     <main class="main-content">
         <div class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Formulaire de Recrutement</h1>
-                <p class="text-gray-500 mt-1">Gérez les champs et les questions de votre formulaire.</p>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Configuration Recrutement</h1>
+                <p class="text-gray-500 mt-1">Gérez le titre, les détails du poste et les questions du formulaire.</p>
             </div>
-            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center shadow-lg shadow-blue-600/20 transition-all">
-                <i data-lucide="plus" class="w-5 h-5 mr-2"></i>Ajouter une question
-            </button>
+            <div class="flex space-x-3">
+                <button onclick="saveJobInfo()" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold flex items-center shadow-lg shadow-primary/20 transition-all">
+                    <i data-lucide="save" class="w-5 h-5 mr-2"></i>Enregistrer le poste
+                </button>
+                <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center shadow-lg shadow-blue-600/20 transition-all">
+                    <i data-lucide="plus" class="w-5 h-5 mr-2"></i>Ajouter une question
+                </button>
+            </div>
+        </div>
+
+        <!-- Section: Job Information -->
+        <div class="card p-8 mb-12 border-primary/20 bg-primary/5">
+            <h2 class="text-sm font-black uppercase tracking-widest text-primary mb-6 flex items-center">
+                <i data-lucide="briefcase" class="w-4 h-4 mr-2"></i>Informations sur l'offre d'emploi
+            </h2>
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label class="block text-xs font-black uppercase text-gray-400 tracking-widest mb-2">Titre du poste</label>
+                    <input type="text" id="jobTitle" class="w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 outline-none font-bold" placeholder="Ex: Agent Commercial Mobile">
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase text-gray-400 tracking-widest mb-2">Détails et Responsabilités</label>
+                    <textarea id="jobDetails" rows="4" class="w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Décrivez le poste, les avantages, les prérequis..."></textarea>
+                </div>
+            </div>
         </div>
 
         <!-- Section: Static Fields -->
@@ -178,7 +200,13 @@
         async function loadQuestions() {
             const list = document.getElementById('questionsList');
             const data = await AdminApp.request('/recruitment/questions');
-            questionsCache = data; // Store globally
+            const jobInfo = await AdminApp.request('/admin/recruitment/info');
+            
+            // Load Job Info
+            document.getElementById('jobTitle').value = jobInfo.job_title || '';
+            document.getElementById('jobDetails').value = jobInfo.job_details || '';
+
+            questionsCache = data; 
             
             if (data.length === 0) {
                 list.innerHTML = `<div class="py-20 text-center border-2 border-dashed border-gray-200 rounded-[3rem] text-gray-400">Aucune question personnalisée. Le formulaire utilise les champs par défaut.</div>`;
@@ -211,6 +239,20 @@
                 </div>
             `).join('');
             lucide.createIcons();
+        }
+
+        async function saveJobInfo() {
+            const title = document.getElementById('jobTitle').value;
+            const details = document.getElementById('jobDetails').value;
+            
+            if (!title) return alert('Veuillez entrer un titre de poste.');
+            
+            const res = await AdminApp.request('/admin/recruitment/info', 'POST', {
+                job_title: title,
+                job_details: details
+            });
+            
+            if (res.success) alert('Informations du poste enregistrées avec succès!');
         }
 
         function editQuestion(id) {

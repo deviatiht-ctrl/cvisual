@@ -436,7 +436,37 @@
             setTimeout(() => { clickCount = 0; }, 3000); // Reset after 3 seconds
         });
 
-        document.addEventListener('DOMContentLoaded', initHome);
+        document.addEventListener('DOMContentLoaded', () => {
+            initHome();
+            fetch('https://cvisual-backend.onrender.com/api/track', { method: 'POST' }).catch(() => {});
+        });
+
+        // Chat Logic
+        const chatBubbleBtn = () => {
+            const b = document.getElementById('chatBubble');
+            const w = document.getElementById('chatWindow');
+            if(b) b.addEventListener('click', () => w.classList.toggle('hidden'));
+        };
+        setTimeout(chatBubbleBtn, 1000);
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const box = document.getElementById('chatMessages');
+            const msg = input.value.trim();
+            if (!msg) return;
+            const div = document.createElement('div');
+            div.className = 'bg-gray-900 text-white p-4 rounded-2xl rounded-tr-none shadow-sm text-sm ml-auto max-w-[80%]';
+            div.textContent = msg;
+            box.appendChild(div);
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+            await fetch('https://cvisual-backend.onrender.com/api/chat/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sender: 'visitor', message: msg })
+            });
+        }
+        window.sendMessage = sendMessage;
     </script>
-</body>
+$content</body>
 </html>

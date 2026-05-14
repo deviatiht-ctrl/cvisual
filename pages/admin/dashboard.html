@@ -54,6 +54,10 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 Newsletter
             </a>
+            <a href="settings.html" class="nav-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Paramètres
+            </a>
         </nav>
 
         <div class="mt-auto">
@@ -67,9 +71,9 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="header-admin">
-            <h2 class="text-3xl font-bold text-gray-800">Vue d'ensemble</h2>
+            <h2 class="text-3xl font-bold text-gray-800">Tableau de bord</h2>
             <div class="flex items-center space-x-4">
-                <span class="text-gray-600" id="adminName">Admin</span>
+                <span class="text-gray-600" id="adminName">Admin CVisual</span>
                 <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">A</div>
             </div>
         </header>
@@ -77,23 +81,20 @@
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-sm mb-1">Total Projets</p>
-                <h3 class="text-2xl font-bold" id="totalProjects">...</h3>
+                <p class="text-gray-500 text-sm mb-1">Nombre de Visiteurs</p>
+                <h3 class="text-2xl font-bold text-primary" id="visitorCount">...</h3>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-sm mb-1">Nouveaux Messages</p>
-                <h3 class="text-2xl font-bold text-blue-600" id="newMessages">...</h3>
+                <p class="text-gray-500 text-sm mb-1">Total Candidatures</p>
+                <h3 class="text-2xl font-bold" id="totalApps">...</h3>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <p class="text-gray-500 text-sm mb-1">Abonnés Newsletter</p>
                 <h3 class="text-2xl font-bold" id="newsletterCount">...</h3>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-sm mb-1">Status API</p>
-                <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span class="text-sm text-green-600 font-medium">Connecté</span>
-                </div>
+                <p class="text-gray-500 text-sm mb-1">Articles / News</p>
+                <h3 class="text-2xl font-bold" id="newsCount">...</h3>
             </div>
         </div>
 
@@ -125,13 +126,16 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Load dashboard stats
-            const inquiries = await AdminApp.request('/inquiries');
-            const projects = await AdminApp.request('/portfolio');
+            const stats = await AdminApp.request('/admin/stats');
             
-            if (inquiries) {
-                document.getElementById('newMessages').textContent = inquiries.filter(i => i.status === 'pending').length;
-                document.getElementById('totalProjects').textContent = projects.length;
+            if (stats) {
+                document.getElementById('visitorCount').textContent = stats.visitors || 0;
+                document.getElementById('totalApps').textContent = stats.applications || 0;
+                document.getElementById('newsletterCount').textContent = stats.newsletter || 0;
+                document.getElementById('newsCount').textContent = stats.news || 0;
                 
+                // Fetch recent inquiries for the table (if available)
+                const inquiries = await AdminApp.request('/inquiries') || [];
                 const tbody = document.getElementById('recentInquiries');
                 inquiries.slice(0, 5).forEach(i => {
                     const row = `
