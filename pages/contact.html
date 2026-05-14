@@ -221,24 +221,25 @@
                     </div>
                 </div>
                 <div class="lg:w-1/2 p-12 md:p-20">
-                    <form class="space-y-6">
+                    <form id="contactForm" class="space-y-6">
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="text-xs font-black uppercase text-gray-400 tracking-widest px-2">Prénom</label>
-                                <input type="text" placeholder="Jean" class="contact-input">
+                                <input type="text" id="firstName" placeholder="Jean" class="contact-input" required>
                             </div>
                             <div class="space-y-2">
                                 <label class="text-xs font-black uppercase text-gray-400 tracking-widest px-2">Nom</label>
-                                <input type="text" placeholder="Dupont" class="contact-input">
+                                <input type="text" id="lastName" placeholder="Dupont" class="contact-input" required>
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-black uppercase text-gray-400 tracking-widest px-2">Email</label>
-                            <input type="email" placeholder="votre@email.com" class="contact-input">
+                            <input type="email" id="email" placeholder="votre@email.com" class="contact-input" required>
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-black uppercase text-gray-400 tracking-widest px-2">Service souhaité</label>
-                            <select class="contact-input appearance-none">
+                            <select id="service" class="contact-input appearance-none" required>
+                                <option value="">Choisir un service...</option>
                                 <option>Création Web</option>
                                 <option>Photographie Pro</option>
                                 <option>Branding & Design</option>
@@ -247,10 +248,10 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-black uppercase text-gray-400 tracking-widest px-2">Message</label>
-                            <textarea placeholder="Parlez-nous de votre projet..." rows="4" class="contact-input"></textarea>
+                            <textarea id="message" placeholder="Parlez-nous de votre projet..." rows="4" class="contact-input" required></textarea>
                         </div>
-                        <button type="submit" class="w-full py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform active:scale-95">
-                            Envoyer ma demande
+                        <button type="submit" id="submitBtn" class="w-full py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform active:scale-95 flex items-center justify-center space-x-3">
+                            <span>Envoyer ma demande</span>
                         </button>
                     </form>
                 </div>
@@ -346,6 +347,48 @@
             });
         });
         window.dispatchEvent(new Event('scroll'));
+
+        const API_BASE = 'https://cvisual-backend.onrender.com/api';
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const original = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-6 h-6 animate-spin"></i><span>Envoi en cours...</span>';
+            lucide.createIcons();
+
+            const payload = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                service: document.getElementById('service').value,
+                message: document.getElementById('message').value
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    btn.innerHTML = '<i data-lucide="check" class="w-6 h-6"></i><span>Message Envoyé !</span>';
+                    btn.classList.replace('bg-primary', 'bg-emerald-600');
+                    e.target.reset();
+                    setTimeout(() => {
+                        btn.innerHTML = original;
+                        btn.classList.replace('bg-emerald-600', 'bg-primary');
+                        btn.disabled = false;
+                        lucide.createIcons();
+                    }, 3000);
+                } else { throw new Error(); }
+            } catch (e) {
+                alert("Erreur lors de l'envoi. Veuillez réessayer.");
+                btn.disabled = false;
+                btn.innerHTML = original;
+                lucide.createIcons();
+            }
+        });
     </script>
 </body>
 </html>

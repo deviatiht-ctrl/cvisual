@@ -150,8 +150,24 @@
                 // Fetch Job Info
                 const infoRes = await fetch(`${API_BASE}/recruitment/info`);
                 const info = await infoRes.json();
-                if (info && info.job_title) {
-                    document.getElementById('displayJobTitle').textContent = info.job_title;
+                if (info) {
+                    if (info.is_active === false) {
+                        document.querySelector('.glass').innerHTML = `
+                            <div class="py-20 text-center">
+                                <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                    <i data-lucide="lock" class="w-10 h-10"></i>
+                                </div>
+                                <h3 class="text-2xl font-black mb-2">Recrutement Fermé</h3>
+                                <p class="text-gray-500">Nous ne prenons plus de candidatures pour le moment. Suivez-nous sur nos réseaux pour les prochaines opportunités.</p>
+                                <a href="../index.html" class="inline-flex items-center space-x-2 text-primary font-bold mt-8 hover:underline">
+                                    <i data-lucide="arrow-left" class="w-4 h-4"></i><span>Retour à l'accueil</span>
+                                </a>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                        return;
+                    }
+                    document.getElementById('displayJobTitle').textContent = info.job_title || "Rejoignez l'élite.";
                     document.getElementById('displayJobDetails').innerHTML = (info.job_details || 'Nous bâtissons le futur digital with les meilleurs talents.').replace(/\n/g, '<br>');
                 }
 
@@ -161,7 +177,7 @@
                 const container = document.getElementById('dynamicQuestions');
                 
                 if (questions.length === 0) {
-                    container.innerHTML = `<p class="text-gray-400 italic">Aucune question supplémentaire.</p>`;
+                    container.innerHTML = `<p class="text-gray-400 italic text-center py-4">Aucune question supplémentaire.</p>`;
                     return;
                 }
 
@@ -172,13 +188,15 @@
                     } else if (q.type === 'textarea') {
                         input = `<textarea name="q-${q.id}" ${q.required ? 'required' : ''} rows="3" class="w-full p-5 rounded-3xl input-glass" placeholder="Votre réponse..."></textarea>`;
                     } else if (q.type === 'select') {
-                        const opts = q.options.split(',').map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join('');
-                        input = `<select name="q-${q.id}" ${q.required ? 'required' : ''} class="w-full p-5 rounded-3xl input-glass appearance-none">${opts}</select>`;
+                        const opts = q.options ? q.options.split(',').map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join('') : '';
+                        input = `<select name="q-${q.id}" ${q.required ? 'required' : ''} class="w-full p-5 rounded-3xl input-glass appearance-none"><option value="">Choisir une option...</option>${opts}</select>`;
+                    } else {
+                        input = `<input type="${q.type}" name="q-${q.id}" ${q.required ? 'required' : ''} class="w-full p-5 rounded-3xl input-glass" placeholder="Votre réponse...">`;
                     }
                     
                     return `
                         <div class="space-y-3">
-                            <label class="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">${q.question}</label>
+                            <label class="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">${q.question} ${q.required ? '<span class="text-red-500">*</span>' : ''}</label>
                             ${input}
                         </div>
                     `;
