@@ -25,6 +25,10 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <a href="../../index.html" class="nav-link text-blue-400 font-bold mb-4 border-b border-white/10 pb-4">
+                <i data-lucide="external-link" class="w-5 h-5 mr-3"></i>
+                Retour au Site
+            </a>
             <a href="dashboard.html" class="nav-link">
                 <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
                 Dashboard
@@ -68,16 +72,59 @@
     <main class="main-content">
         <div class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Configuration du Formulaire</h1>
-                <p class="text-gray-500 mt-1">Personnalisez les questions pour vos candidats.</p>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Formulaire de Recrutement</h1>
+                <p class="text-gray-500 mt-1">Gérez les champs et les questions de votre formulaire.</p>
             </div>
             <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center shadow-lg shadow-blue-600/20 transition-all">
                 <i data-lucide="plus" class="w-5 h-5 mr-2"></i>Ajouter une question
             </button>
         </div>
 
-        <div class="space-y-4" id="questionsList">
-            <!-- Questions loaded here -->
+        <!-- Section: Static Fields -->
+        <div class="mb-12">
+            <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center">
+                <i data-lucide="lock" class="w-4 h-4 mr-2"></i>Champs Statiques (Par Défaut)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="card p-5 flex items-center space-x-4 opacity-70">
+                    <div class="p-3 bg-gray-100 rounded-xl"><i data-lucide="user" class="w-5 h-5 text-gray-400"></i></div>
+                    <div>
+                        <p class="font-bold text-gray-800">Nom Complet</p>
+                        <p class="text-xs text-gray-400">Champ requis par défaut</p>
+                    </div>
+                </div>
+                <div class="card p-5 flex items-center space-x-4 opacity-70">
+                    <div class="p-3 bg-gray-100 rounded-xl"><i data-lucide="mail" class="w-5 h-5 text-gray-400"></i></div>
+                    <div>
+                        <p class="font-bold text-gray-800">Email</p>
+                        <p class="text-xs text-gray-400">Champ requis par défaut</p>
+                    </div>
+                </div>
+                <div class="card p-5 flex items-center space-x-4 opacity-70">
+                    <div class="p-3 bg-gray-100 rounded-xl"><i data-lucide="phone" class="w-5 h-5 text-gray-400"></i></div>
+                    <div>
+                        <p class="font-bold text-gray-800">WhatsApp / TikTok</p>
+                        <p class="text-xs text-gray-400">Champs requis par défaut</p>
+                    </div>
+                </div>
+                <div class="card p-5 flex items-center space-x-4 opacity-70">
+                    <div class="p-3 bg-gray-100 rounded-xl"><i data-lucide="upload" class="w-5 h-5 text-gray-400"></i></div>
+                    <div>
+                        <p class="font-bold text-gray-800">CV & Motivation</p>
+                        <p class="text-xs text-gray-400">Champs requis par défaut</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Dynamic Questions -->
+        <div>
+            <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center">
+                <i data-lucide="edit-3" class="w-4 h-4 mr-2"></i>Champs Personnalisés
+            </h2>
+            <div class="space-y-4" id="questionsList">
+                <!-- Questions loaded here -->
+            </div>
         </div>
     </main>
 
@@ -86,6 +133,7 @@
         <div class="card w-full max-w-xl p-8 max-h-[90vh] overflow-y-auto">
             <h2 class="text-2xl font-bold mb-6">Paramètres de la Question</h2>
             <form id="questionForm" class="space-y-6">
+                <input type="hidden" id="questionIdField">
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Question</label>
                     <input type="text" id="qTitle" required placeholder="Ex: Quel est votre domaine d'expertise ?" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
@@ -123,10 +171,12 @@
     <script src="../../assets/js/admin.js"></script>
     <script>
         lucide.createIcons();
+        let questionsCache = [];
 
         async function loadQuestions() {
             const list = document.getElementById('questionsList');
             const data = await AdminApp.request('/recruitment/questions');
+            questionsCache = data; // Store globally
             
             if (data.length === 0) {
                 list.innerHTML = `<div class="py-20 text-center border-2 border-dashed border-gray-200 rounded-[3rem] text-gray-400">Aucune question personnalisée. Le formulaire utilise les champs par défaut.</div>`;
@@ -148,12 +198,31 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="deleteQuestion(${q.id})" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
-                        <i data-lucide="trash-2" class="w-5 h-5"></i>
-                    </button>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="editQuestion(${q.id})" class="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all">
+                            <i data-lucide="edit-2" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="deleteQuestion(${q.id})" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
             lucide.createIcons();
+        }
+
+        function editQuestion(id) {
+            const q = questionsCache.find(x => x.id === id);
+            if (!q) return;
+            
+            document.getElementById('questionIdField').value = q.id;
+            document.getElementById('qTitle').value = q.question;
+            document.getElementById('qType').value = q.type;
+            document.getElementById('qOptions').value = q.options || '';
+            document.getElementById('qRequired').checked = q.required;
+            
+            toggleOptions();
+            openModal(true);
         }
 
         function toggleOptions() {
@@ -164,6 +233,7 @@
 
         document.getElementById('questionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const qId = document.getElementById('questionIdField').value;
             const data = {
                 question: document.getElementById('qTitle').value,
                 type: document.getElementById('qType').value,
@@ -171,8 +241,11 @@
                 required: document.getElementById('qRequired').checked
             };
 
-            const res = await AdminApp.request('/admin/recruitment/questions', {
-                method: 'POST',
+            const url = qId ? `/admin/recruitment/questions/${qId}` : '/admin/recruitment/questions';
+            const method = qId ? 'PUT' : 'POST';
+
+            const res = await AdminApp.request(url, {
+                method: method,
                 body: JSON.stringify(data)
             });
 
@@ -189,7 +262,14 @@
             loadQuestions();
         }
 
-        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+        function openModal(isEdit = false) { 
+            if (!isEdit) {
+                document.getElementById('questionForm').reset();
+                document.getElementById('questionIdField').value = '';
+                toggleOptions();
+            }
+            document.getElementById('modal').classList.remove('hidden'); 
+        }
         function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 
         loadQuestions();
