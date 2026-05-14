@@ -60,7 +60,8 @@ const AdminApp = {
         } catch (error) {
             this.hideLoader();
             console.error('API Request Error:', error);
-            return { error: 'Network error' };
+            alert(`Erreur de connexion au serveur (${url}). Vérifiez que le backend est en ligne.`);
+            return { error: 'Network error', details: error.message };
         }
     },
 
@@ -137,9 +138,7 @@ const AdminApp = {
 };
 
 // Check auth on load for protected pages
-if (window.location.pathname.includes('dashboard.html') ||
-    window.location.pathname.includes('portfolio.html') &&
-    !window.location.pathname.includes('login.html')) {
+if (window.location.pathname.includes('/admin/') && !window.location.pathname.includes('login.html')) {
     if (!AdminApp.isAuthenticated()) {
         window.location.href = 'login.html';
     }
