@@ -5,88 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Newsletter - CVisual Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../../css/admin.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .sidebar { background: #0f172a; color: white; height: 100vh; position: fixed; width: 260px; z-index: 10; }
+        .nav-link { display: flex; items-center: center; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.75rem; margin: 0.25rem 1rem; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.05); color: white; }
+        .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+        .card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; }
+    </style>
 </head>
-<body class="admin-layout">
+<body>
     <aside class="sidebar">
-        <div class="sidebar-logo" onclick="window.location.href='../index.html'"><img src="../assets/logo.jpg" alt="" class="w-10 rounded"><span>CVisual</span></div>
-        <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">Dashboard</a>
-            <a href="portfolio.html" class="nav-item">Portfolio</a>
-            <a href="services.html" class="nav-item">Services</a>
-            <a href="inbox.html" class="nav-item">Inquiries</a>
-            <a href="newsletter.html" class="nav-item active">Newsletter</a>
+        <div class="p-8 mb-4">
+            <div class="flex items-center space-x-3">
+                <img src="../../assets/logo.jpg" class="w-10 h-10 rounded-xl" alt="Logo">
+                <span class="text-xl font-bold font-outfit tracking-tighter">CVISUAL</span>
+            </div>
+        </div>
+        <nav class="space-y-1">
+            <a href="dashboard.html" class="nav-link"><i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>Dashboard</a>
+            <a href="news.html" class="nav-link"><i data-lucide="newspaper" class="w-5 h-5 mr-3"></i>Actualités</a>
+            <a href="portfolio.html" class="nav-link"><i data-lucide="briefcase" class="w-5 h-5 mr-3"></i>Portfolio</a>
+            <a href="services.html" class="nav-link"><i data-lucide="cpu" class="w-5 h-5 mr-3"></i>Services</a>
+            <a href="recruitment_form.html" class="nav-link"><i data-lucide="form-input" class="w-5 h-5 mr-3"></i>Formulaire</a>
+            <a href="clients.html" class="nav-link"><i data-lucide="users" class="w-5 h-5 mr-3"></i>Clients</a>
+            <a href="newsletter.html" class="nav-link active"><i data-lucide="mail" class="w-5 h-5 mr-3"></i>Newsletter</a>
         </nav>
-        <div class="mt-auto"><button onclick="AdminApp.logout()" class="nav-item w-full text-left text-red-400">Déconnexion</button></div>
+        <div class="absolute bottom-8 w-full px-4">
+            <button onclick="AdminApp.logout()" class="flex items-center w-full p-4 text-red-400 hover:bg-red-500/10 rounded-2xl transition">
+                <i data-lucide="log-out" class="w-5 h-5 mr-3"></i>Déconnexion
+            </button>
+        </div>
     </aside>
 
     <main class="main-content">
-        <header class="header-admin">
-            <h2 class="text-3xl font-bold text-gray-800">Newsletter</h2>
-            <button onclick="exportCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Exporter CSV</button>
-        </header>
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Newsletter Subscribers</h1>
+                <p class="text-gray-500 mt-1">Gérez la liste de diffusion de votre agence.</p>
+            </div>
+            <button onclick="exportCSV()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center shadow-lg shadow-blue-600/20 transition-all">
+                <i data-lucide="download" class="w-5 h-5 mr-2"></i>Exporter CSV
+            </button>
+        </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 class="font-bold mb-4">Liste des abonnés</h3>
-            <ul id="subscriberList" class="divide-y divide-gray-100">
-                <!-- Content loaded here -->
-                <li class="py-2 text-gray-500">Chargement...</li>
-            </ul>
+        <div class="card overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="p-6 text-xs font-bold uppercase tracking-widest text-gray-400">Email</th>
+                        <th class="p-6 text-xs font-bold uppercase tracking-widest text-gray-400">Date d'inscription</th>
+                        <th class="p-6 text-xs font-bold uppercase tracking-widest text-gray-400">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="subsList">
+                    <!-- Subs loaded here -->
+                </tbody>
+            </table>
         </div>
     </main>
 
     <script src="../../assets/js/admin.js"></script>
     <script>
-        async function loadSubscribers() {
-            const list = document.getElementById('subscriberList');
-            const subs = await AdminApp.request('/newsletter');
+        lucide.createIcons();
+
+        async function loadSubs() {
+            const list = document.getElementById('subsList');
+            const data = await AdminApp.request('/admin/newsletter');
             
-            if (!subs || subs.error) {
-                list.innerHTML = '<li class="py-2 text-red-500">Erreur lors du chargement</li>';
+            if (data.error) {
+                list.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-red-500 font-bold">Erreur de chargement des abonnés.</td></tr>`;
                 return;
             }
 
-            if (subs.length === 0) {
-                list.innerHTML = '<li class="py-2 text-gray-500">Aucun abonné pour le moment</li>';
+            if (data.length === 0) {
+                list.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-gray-400">Aucun abonné pour le moment.</td></tr>`;
                 return;
             }
 
-            list.innerHTML = subs.map(s => `
-                <li class="py-3 flex justify-between items-center">
-                    <span class="font-medium text-gray-700">${s.email}</span>
-                    <span class="text-gray-400 text-sm">Abonné le ${new Date(s.date).toLocaleDateString('fr-FR')}</span>
-                </li>
+            list.innerHTML = data.map(s => `
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <td class="p-6 font-bold text-gray-800">${s.email}</td>
+                    <td class="p-6 text-gray-500 text-sm">${s.date}</td>
+                    <td class="p-6">
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-tighter">Actif</span>
+                    </td>
+                </tr>
             `).join('');
         }
 
-        async function exportCSV() {
-            try {
-                const token = AdminApp.getToken();
-                const response = await fetch(`${API_BASE}/newsletter/export`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                if (!response.ok) throw new Error('Export failed');
-                
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = 'subscribers.csv';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            } catch (e) {
-                console.error('Export error:', e);
-                alert('Erreur lors de l\'exportation CSV');
-            }
+        function exportCSV() {
+            const rows = document.querySelectorAll('#subsList tr');
+            let csvContent = "data:text/csv;charset=utf-8,Email,Date\n";
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if (cols.length >= 2) {
+                    csvContent += `${cols[0].innerText},${cols[1].innerText}\n`;
+                }
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "newsletter_subscribers.csv");
+            document.body.appendChild(link);
+            link.click();
         }
 
-        // Initialize
-        loadSubscribers();
+        loadSubs();
     </script>
 </body>
 </html>

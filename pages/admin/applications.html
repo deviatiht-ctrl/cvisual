@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidatures - CVisual Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .sidebar { background: #0f172a; color: white; height: 100vh; position: fixed; width: 260px; z-index: 10; }
+        .nav-link { display: flex; items-center: center; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.75rem; margin: 0.25rem 1rem; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.05); color: white; }
+        .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+        .card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; }
+        .status-pill { padding: 0.25rem 0.75rem; rounded-full: 9999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-interview { background: #dbeafe; color: #1e40af; }
+        .status-accepted { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="p-8 mb-4">
+            <div class="flex items-center space-x-3">
+                <img src="../../assets/logo.jpg" class="w-10 h-10 rounded-xl" alt="Logo">
+                <span class="text-xl font-bold font-outfit tracking-tighter">CVISUAL</span>
+            </div>
+        </div>
+        <nav class="space-y-1">
+            <a href="dashboard.html" class="nav-link"><i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>Dashboard</a>
+            <a href="news.html" class="nav-link"><i data-lucide="newspaper" class="w-5 h-5 mr-3"></i>Actualités</a>
+            <a href="applications.html" class="nav-link active"><i data-lucide="user-check" class="w-5 h-5 mr-3"></i>Candidatures</a>
+            <a href="portfolio.html" class="nav-link"><i data-lucide="briefcase" class="w-5 h-5 mr-3"></i>Portfolio</a>
+            <a href="services.html" class="nav-link"><i data-lucide="cpu" class="w-5 h-5 mr-3"></i>Services</a>
+            <a href="recruitment_form.html" class="nav-link"><i data-lucide="form-input" class="w-5 h-5 mr-3"></i>Formulaire</a>
+            <a href="clients.html" class="nav-link"><i data-lucide="users" class="w-5 h-5 mr-3"></i>Clients</a>
+            <a href="newsletter.html" class="nav-link"><i data-lucide="mail" class="w-5 h-5 mr-3"></i>Newsletter</a>
+        </nav>
+        <div class="absolute bottom-8 w-full px-4">
+            <button onclick="AdminApp.logout()" class="flex items-center w-full p-4 text-red-400 hover:bg-red-500/10 rounded-2xl transition">
+                <i data-lucide="log-out" class="w-5 h-5 mr-3"></i>Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Candidatures Reçues</h1>
+                <p class="text-gray-500 mt-1">Gérez les profils qui souhaitent rejoindre l'aventure CVisual.</p>
+            </div>
+        </div>
+
+        <div class="card overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="p-6 text-xs font-bold uppercase tracking-widest text-gray-400">Candidat</th>
+                        <th class="p-6 text-xs font-bold uppercase tracking-widest text-gray-400">Contact</th>
+                        <th class="p-6 text-xs font-bold uppercase tracking-widest text-gray-400">Date</th>
+                        <th class="p-6 text-xs font-bold uppercase tracking-widest text-gray-400">Status</th>
+                        <th class="p-6 text-xs font-bold uppercase tracking-widest text-gray-400">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="appsList">
+                    <!-- Apps loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Details Modal -->
+    <div id="detailsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="card w-full max-w-2xl p-10 max-h-[90vh] overflow-y-auto relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-400 hover:text-gray-900"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <div id="detailsContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/admin.js"></script>
+    <script>
+        lucide.createIcons();
+
+        async function loadApps() {
+            const list = document.getElementById('appsList');
+            const data = await AdminApp.request('/admin/applications');
+            
+            if (data.length === 0) {
+                list.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-400">Aucune candidature pour le moment.</td></tr>`;
+                return;
+            }
+
+            list.innerHTML = data.map(a => `
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <td class="p-6">
+                        <div class="font-bold text-gray-900">${a.full_name}</div>
+                        <div class="text-xs text-gray-400">${a.email}</div>
+                    </td>
+                    <td class="p-6">
+                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                            <i data-lucide="phone" class="w-3 h-3"></i>
+                            <span>${a.whatsapp}</span>
+                        </div>
+                    </td>
+                    <td class="p-6 text-gray-500 text-sm">${a.date}</td>
+                    <td class="p-6">
+                        <span class="status-pill status-${a.status}">${a.status}</span>
+                    </td>
+                    <td class="p-6">
+                        <button onclick='viewDetails(${JSON.stringify(a)})' class="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        window.viewDetails = function(a) {
+            const content = document.getElementById('detailsContent');
+            content.innerHTML = `
+                <div class="flex items-center space-x-4 mb-8">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-black">
+                        ${a.full_name[0]}
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-900">${a.full_name}</h2>
+                        <p class="text-gray-500">${a.email} | ${a.whatsapp}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">TikTok Handle</p>
+                        <p class="font-bold text-gray-800">${a.tiktok || 'N/A'}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Sales Level</p>
+                        <p class="font-bold text-gray-800">${a.sales_level || 'N/A'}</p>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Motivation</p>
+                    <div class="p-6 bg-gray-50 rounded-3xl text-gray-700 leading-relaxed italic text-sm border border-gray-100">
+                        "${a.motivation || 'Aucune motivation fournie.'}"
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Documents</p>
+                    <div class="flex space-x-4">
+                        ${a.cv_filename ? `
+                            <a href="${API_BASE}/uploads/${a.cv_filename}" target="_blank" class="flex-1 p-4 bg-blue-600 text-white rounded-2xl font-bold flex items-center justify-center hover:bg-blue-700 transition">
+                                <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>Voir le CV (Upload)
+                            </a>
+                        ` : ''}
+                        ${a.cv_link ? `
+                            <a href="${a.cv_link}" target="_blank" class="flex-1 p-4 bg-gray-100 text-gray-700 rounded-2xl font-bold flex items-center justify-center hover:bg-gray-200 transition">
+                                <i data-lucide="link" class="w-5 h-5 mr-2"></i>Lien Portfolio/CV
+                            </a>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <div class="pt-8 border-t border-gray-100">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Changer le status</p>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="updateStatus(${a.id}, 'pending')" class="p-3 rounded-xl border border-gray-200 text-xs font-bold hover:bg-amber-50 hover:border-amber-200 transition">Pending</button>
+                        <button onclick="updateStatus(${a.id}, 'interview')" class="p-3 rounded-xl border border-gray-200 text-xs font-bold hover:bg-blue-50 hover:border-blue-200 transition">Interview</button>
+                        <button onclick="updateStatus(${a.id}, 'accepted')" class="p-3 rounded-xl border border-gray-200 text-xs font-bold hover:bg-emerald-50 hover:border-emerald-200 transition">Accept</button>
+                        <button onclick="updateStatus(${a.id}, 'rejected')" class="p-3 rounded-xl border border-gray-200 text-xs font-bold hover:bg-red-50 hover:border-red-200 transition text-red-600">Reject</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailsModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        window.updateStatus = async function(id, status) {
+            const res = await AdminApp.request(`/admin/applications/${id}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status })
+            });
+            if (res.success) {
+                closeModal();
+                loadApps();
+            }
+        }
+
+        function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
+
+        loadApps();
+    </script>
+</body>
+</html>
