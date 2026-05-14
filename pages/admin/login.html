@@ -50,7 +50,13 @@
 <body class="min-h-screen">
     <div class="bg-glow top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
     
-    <div class="w-full max-w-md px-6">
+    <div class="w-full max-w-md px-6 relative">
+        <!-- Back Button -->
+        <a href="../../index.html" class="absolute -top-12 left-6 flex items-center space-x-2 text-gray-500 hover:text-white transition-all group">
+            <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+            <span class="text-xs font-bold uppercase tracking-widest">Retour au site</span>
+        </a>
+
         <div class="glass-card rounded-[2.5rem] p-10 md:p-12 relative overflow-hidden">
             <!-- Header -->
             <div class="text-center mb-10">
