@@ -17,14 +17,45 @@
     <script src="../../assets/js/admin-responsive.js"></script>
 
     <aside class="sidebar">
-        <div class="sidebar-logo">
-            <span>CVisual Admin</span>
+        <div class="sidebar-logo" onclick="window.location.href='../../index.html'">
+            <img src="../../assets/logo.jpg" alt="Logo" class="w-10 h-10 rounded">
+            <span>CVisual</span>
         </div>
         <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">Dashboard</a>
-            <a href="chat.html" class="nav-item active">Chat Support</a>
-            <a href="inbox.html" class="nav-item">Demandes Devis</a>
+            <a href="dashboard.html" class="nav-item">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+            </a>
+            <a href="portfolio.html" class="nav-item">
+                <i data-lucide="briefcase" class="w-5 h-5 mr-3"></i> Portfolio
+            </a>
+            <a href="services.html" class="nav-item">
+                <i data-lucide="layers" class="w-5 h-5 mr-3"></i> Services
+            </a>
+            <a href="news.html" class="nav-item">
+                <i data-lucide="newspaper" class="w-5 h-5 mr-3"></i> News & Jobs
+            </a>
+            <a href="recruitment_form.html" class="nav-item">
+                <i data-lucide="settings-2" class="w-5 h-5 mr-3"></i> Config Recrutement
+            </a>
+            <a href="applications.html" class="nav-item">
+                <i data-lucide="users" class="w-5 h-5 mr-3"></i> Candidatures
+            </a>
+            <a href="clients.html" class="nav-item">
+                <i data-lucide="image" class="w-5 h-5 mr-3"></i> Clients/Logos
+            </a>
+            <a href="newsletter.html" class="nav-item">
+                <i data-lucide="mail" class="w-5 h-5 mr-3"></i> Newsletter
+            </a>
+            <a href="chat.html" class="nav-item active">
+                <i data-lucide="message-square" class="w-5 h-5 mr-3"></i> Chat Support
+            </a>
+            <a href="settings.html" class="nav-item">
+                <i data-lucide="settings" class="w-5 h-5 mr-3"></i> Paramètres
+            </a>
         </nav>
+        <div class="mt-auto">
+            <button onclick="AdminApp.logout()" class="nav-item w-full text-left text-red-400">Déconnexion</button>
+        </div>
     </aside>
 
     <main class="main-content flex flex-col h-screen p-0">
