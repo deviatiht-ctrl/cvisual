@@ -139,7 +139,12 @@ const AdminApp = {
 
 // Check auth on load for protected pages
 if (window.location.pathname.includes('/admin/') && !window.location.pathname.includes('login.html')) {
+    console.log('Auth check for protected page');
+    console.log('Token exists:', !!AdminApp.getToken());
     if (!AdminApp.isAuthenticated()) {
+        console.log('Not authenticated, redirecting to login');
         window.location.href = 'login.html';
+    } else {
+        console.log('Authenticated, staying on page');
     }
 }

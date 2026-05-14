@@ -127,8 +127,11 @@
                 });
 
                 const data = await response.json();
-                if (response.ok) {
+                console.log('Login response:', data);
+                
+                if (response.ok && data.access_token) {
                     AdminApp.setToken(data.access_token);
+                    console.log('Token set, redirecting to dashboard...');
                     window.location.href = 'dashboard.html';
                 } else {
                     errorEl.textContent = data.msg || 'Identifiants invalides';
@@ -138,6 +141,7 @@
                     lucide.createIcons();
                 }
             } catch (err) {
+                console.error('Login error:', err);
                 errorEl.textContent = 'Erreur: Serveur hors ligne';
                 errorEl.classList.remove('hidden');
                 btn.disabled = false;
