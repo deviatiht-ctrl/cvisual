@@ -127,9 +127,17 @@
             </nav>
 
             <div class="flex items-center space-x-3">
-                <a href="pages/contact.html" class="hidden sm:flex items-center space-x-2 px-6 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all duration-300">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i><span>Contact</span>
-                </a>
+                <div id="auth-buttons" class="hidden sm:flex items-center space-x-3">
+                    <a href="pages/auth/login.html" class="px-5 py-2 text-sm font-bold text-gray-700">Connexion</a>
+                    <a href="pages/auth/register.html" class="px-5 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">S'inscrire</a>
+                </div>
+                <div id="user-profile" class="hidden items-center space-x-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-[10px] font-black uppercase text-gray-900" id="user-name">...</p>
+                        <button onclick="logoutUser()" class="text-[8px] font-bold text-red-500 uppercase">Quitter</button>
+                    </div>
+                    <div class="w-10 h-10 bg-gray-900 text-white rounded-full flex items-center justify-center font-bold">U</div>
+                </div>
                 <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="menu" class="w-5 h-5"></i></button>
             </div>
         </header>
@@ -439,7 +447,31 @@
         document.addEventListener('DOMContentLoaded', () => {
             initHome();
             fetch('https://cvisual-backend.onrender.com/api/track', { method: 'POST' }).catch(() => {});
+            checkUserAuth();
         });
+
+        function checkUserAuth() {
+            const token = localStorage.getItem('userToken');
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const authBtns = document.getElementById('auth-buttons');
+            const profile = document.getElementById('user-profile');
+            
+            if (token && userData.name) {
+                authBtns.classList.add('hidden');
+                profile.classList.remove('hidden');
+                profile.classList.add('flex');
+                document.getElementById('user-name').textContent = userData.name;
+            } else {
+                authBtns.classList.remove('hidden');
+                profile.classList.add('hidden');
+            }
+        }
+
+        window.logoutUser = () => {
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('userData');
+            window.location.reload();
+        };
 
         // Chat Logic
         const chatBubbleBtn = () => {

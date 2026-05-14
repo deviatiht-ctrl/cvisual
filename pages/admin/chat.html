@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Support - CVisual Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../assets/admin-responsive.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="admin-layout">
+    <script src="../../assets/js/admin-responsive.js"></script>
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span>CVisual Admin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">Dashboard</a>
+            <a href="chat.html" class="nav-item active">Chat Support</a>
+            <a href="inbox.html" class="nav-item">Demandes Devis</a>
+        </nav>
+    </aside>
+
+    <main class="main-content flex flex-col h-screen p-0">
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Conversations List -->
+            <div class="w-80 border-r border-gray-100 bg-white flex flex-col">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-xl font-bold">Conversations</h2>
+                </div>
+                <div id="convList" class="flex-1 overflow-y-auto">
+                    <!-- Conversations will load here -->
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="flex-1 flex flex-col bg-gray-50">
+                <div id="chatHeader" class="p-6 bg-white border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="font-bold text-gray-800" id="currentVisitor">Sélectionnez une conversation</h3>
+                </div>
+                <div id="adminChatMessages" class="flex-1 p-8 overflow-y-auto space-y-4">
+                    <div class="text-center text-gray-400 mt-20">Cliquez sur un visiteur pour voir les messages</div>
+                </div>
+                <div class="p-6 bg-white border-t border-gray-100 flex items-center space-x-4">
+                    <input type="text" id="adminChatInput" class="flex-1 bg-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20" placeholder="Écrivez votre réponse...">
+                    <button id="adminSendBtn" class="bg-primary text-white p-4 rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition"><i data-lucide="send" class="w-6 h-6"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../assets/js/admin.js"></script>
+    <script>
+        lucide.createIcons();
+        let selectedVisitor = null;
+
+        async function loadConversations() {
+            const convs = await AdminApp.request('/admin/chat/conversations');
+            const list = document.getElementById('convList');
+            list.innerHTML = convs.map(vId => `
+                <div onclick="selectConversation('${vId}')" class="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition ${selectedVisitor === vId ? 'bg-blue-50 border-blue-100' : ''}">
+                    <div class="font-bold text-sm text-gray-800">Visiteur ${vId.substring(0, 8)}</div>
+                    <div class="text-xs text-gray-400">Discussion en cours</div>
+                </div>
+            `).join('');
+        }
+
+        async function selectConversation(vId) {
+            selectedVisitor = vId;
+            document.getElementById('currentVisitor').textContent = `Discussion avec Visiteur ${vId}`;
+            loadMessages();
+            loadConversations();
+        }
+
+        async function loadMessages() {
+            if (!selectedVisitor) return;
+            const msgs = await AdminApp.request(`/chat/messages?visitor_id=${selectedVisitor}`);
+            const box = document.getElementById('adminChatMessages');
+            box.innerHTML = msgs.map(m => `
+                <div class="flex ${m.sender === 'admin' ? 'justify-end' : 'justify-start'}">
+                    <div class="p-4 rounded-2xl max-w-[70%] ${m.sender === 'admin' ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none shadow-sm'}">
+                        <p class="text-sm">${m.message}</p>
+                        <span class="text-[10px] opacity-60 mt-1 block">${m.time}</span>
+                    </div>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        document.getElementById('adminSendBtn').addEventListener('click', async () => {
+            const input = document.getElementById('adminChatInput');
+            const msg = input.value.trim();
+            if (!msg || !selectedVisitor) return;
+
+            await AdminApp.request(`/chat/messages?visitor_id=${selectedVisitor}`, 'POST', {
+                sender: 'admin',
+                message: msg
+            });
+            input.value = '';
+            loadMessages();
+        });
+
+        setInterval(() => { if(selectedVisitor) loadMessages(); }, 3000);
+        loadConversations();
+    </script>
+</body>
+</html>
