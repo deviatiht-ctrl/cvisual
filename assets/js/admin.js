@@ -137,7 +137,8 @@ const AdminApp = {
     }
 };
 
-// Check auth on load for protected pages
+// Check auth on load for protected pages - DISABLED DUE TO AUTH LOOP
+/*
 setTimeout(() => {
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.includes('login.html');
@@ -156,3 +157,4 @@ setTimeout(() => {
         }
     }
 }, 100);
+*/
