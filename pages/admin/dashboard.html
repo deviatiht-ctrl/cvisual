@@ -139,7 +139,7 @@
                 document.getElementById('newsCount').textContent = stats.news || 0;
                 
                 // Fetch recent inquiries for the table (if available)
-                const inquiries = await AdminApp.request('/inquiries') || [];
+                const inquiries = await AdminApp.request('/admin/inquiries') || [];
                 const tbody = document.getElementById('recentInquiries');
                 inquiries.slice(0, 5).forEach(i => {
                     const row = `
