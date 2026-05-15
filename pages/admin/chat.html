@@ -129,10 +129,7 @@
             const msg = input.value.trim();
             if (!msg || !selectedVisitor) return;
 
-            await AdminApp.request(`/chat/messages?visitor_id=${selectedVisitor}`, 'POST', {
-                sender: 'admin',
-                message: msg
-            });
+            await AdminApp.request(`/chat/messages?visitor_id=${selectedVisitor}`, { method: 'POST', body: JSON.stringify({ sender: 'admin', message: msg }) });
             input.value = '';
             loadMessages();
         });

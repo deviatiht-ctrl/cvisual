@@ -388,10 +388,7 @@
         }
 
         async function updateStatus(id, status) {
-            const res = await AdminApp.request(`/admin/applications/${id}/status`, {
-                method: 'PUT',
-                body: JSON.stringify({ status })
-            });
+            const res = await AdminApp.request(`/admin/applications/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
             if (res && res.success) {
                 closeCandidateModal();
                 loadCandidates();

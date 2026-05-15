@@ -338,7 +338,7 @@
 
         async function toggleRecruitment(isActive) {
             try {
-                await AdminApp.request('/admin/recruitment/toggle', 'POST', { is_active: isActive });
+                await AdminApp.request('/admin/recruitment/toggle', { method: 'POST', body: JSON.stringify({ is_active: isActive }) });
             } catch (e) {
                 alert("Erreur lors de la mise à jour du statut.");
             }

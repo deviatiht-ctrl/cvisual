@@ -93,7 +93,7 @@
             const username = document.getElementById('newAdminUser').value;
             const password = document.getElementById('newAdminPass').value;
             
-            const res = await AdminApp.request('/admin/manage', 'POST', { username, password });
+            const res = await AdminApp.request('/admin/manage', { method: 'POST', body: JSON.stringify({ username, password }) });
             if (res.success) {
                 alert('Nouvel administrateur ajouté !');
                 e.target.reset();
