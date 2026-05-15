@@ -131,8 +131,14 @@
                 
                 if (response.ok && data.access_token) {
                     AdminApp.setToken(data.access_token);
-                    console.log('Token set, redirecting to dashboard...');
-                    window.location.href = 'dashboard.html';
+                    console.log('Token set successfully');
+                    errorEl.textContent = 'Connexion réussie! Vous pouvez maintenant accéder au tableau de bord.';
+                    errorEl.className = 'mt-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs text-center font-bold';
+                    errorEl.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = `<span>Aller au Dashboard</span>`;
+                    btn.onclick = () => window.location.href = 'dashboard.html';
+                    lucide.createIcons();
                 } else {
                     errorEl.textContent = data.msg || 'Identifiants invalides';
                     errorEl.classList.remove('hidden');
