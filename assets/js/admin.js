@@ -48,7 +48,7 @@ const AdminApp = {
 
         this.showLoader();
         try {
-            const response = await fetch(url, { ...options, headers });
+            const response = await fetch(url, { method: options.method || 'GET', headers, body: options.body });
             this.hideLoader();
 
             if (response.status === 401) {
@@ -113,7 +113,10 @@ const AdminApp = {
                 document.head.appendChild(style);
             }
         }
-        setTimeout(() => document.querySelector('.loader-overlay').style.opacity = '1', 10);
+        setTimeout(() => {
+            const loader = document.querySelector('.loader-overlay');
+            if (loader) loader.style.opacity = '1';
+        }, 10);
     },
 
     hideLoader() {
