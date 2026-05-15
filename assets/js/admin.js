@@ -137,8 +137,7 @@ const AdminApp = {
     }
 };
 
-// Check auth on load for protected pages - TEMPORARILY DISABLED FOR DEBUGGING
-/*
+// Check auth on load for protected pages
 setTimeout(() => {
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.includes('login.html');
@@ -157,4 +156,3 @@ setTimeout(() => {
         }
     }
 }, 100);
-*/
