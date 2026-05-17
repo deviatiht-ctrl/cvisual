@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cvisual-v2'; // Chanje vèsyon an pou force update
+const CACHE_NAME = 'cvisual-v5'; // Force update - bottom-nav, fallbacks, client logo resolution
 const urlsToCache = [
   '/',
   '/index.html',

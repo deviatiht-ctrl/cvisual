@@ -55,9 +55,10 @@
         }
 
         .text-gradient {
-            background: linear-gradient(135deg, #1E40AF 0%, #F97316 100%);
+            background: linear-gradient(to right, #1B365D, #1F8A9D, #5BC2C3);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hero-glow {
@@ -98,7 +99,7 @@
                     <img src="../assets/logo.jpg" class="w-full h-full object-cover" alt="Logo">
                 </div>
                 <div class="flex flex-col leading-none">
-                    <span class="text-2xl font-outfit font-extrabold tracking-tight">CVisual</span>
+                    <span class="text-2xl font-outfit font-extrabold tracking-tight"><span style="color:#1B365D">C</span><span style="color:#5BC2C3">visual</span></span>
                     <span class="text-[9px] uppercase tracking-[0.2em] text-primary font-bold">Creative Agency</span>
                 </div>
             </a>
@@ -110,9 +111,9 @@
                 <a href="blog.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm transition-colors">Blog</a>
             </nav>
             <div class="flex items-center space-x-3">
-                <div id="auth-buttons" class="hidden sm:flex items-center space-x-3">
-                    <a href="auth/login.html" class="px-5 py-2 text-sm font-bold text-gray-700">Connexion</a>
-                    <a href="auth/register.html" class="px-5 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">S'inscrire</a>
+                <div id="auth-buttons" class="hidden md:flex items-center space-x-3">
+                    <a href="auth/login.html" class="px-4 py-2 text-sm font-bold text-gray-700">Connexion</a>
+                    <a href="auth/register.html" class="px-4 py-2 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">S'inscrire</a>
                 </div>
                 <div id="user-profile" class="hidden items-center space-x-3">
                     <div class="text-right hidden sm:block">
@@ -173,9 +174,9 @@
     </section>
 
     <!-- Dynamic Services Container -->
-    <section class="py-20" id="services-container">
-        <div class="container mx-auto px-6 space-y-32">
-            <div class="text-center py-20 text-gray-400 font-medium">Chargement des services...</div>
+    <section class="py-12" id="services-container">
+        <div class="container mx-auto px-6">
+            <div class="text-center py-16 text-gray-400 font-medium">Chargement des services...</div>
         </div>
     </section>
 
@@ -187,6 +188,7 @@
     </footer>
 
     <script src="../assets/js/public.js"></script>
+    <script src="../assets/js/bottom-nav.js"></script>
     <script>
         lucide.createIcons();
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -221,52 +223,36 @@
             const services = await CVisual.fetchServices();
             const container = document.getElementById('services-container');
             if (services && services.length > 0) {
-                container.innerHTML = `<div class="container mx-auto px-6 space-y-32">
+                container.innerHTML = `<div class="container mx-auto px-6">
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     ${services.map((s, i) => {
-                        const imgUrl = CVisual.getImageUrl(s.image) || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&h=600&fit=crop';
+                        const imgUrl = CVisual.getImageUrl(s.image) || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&h=400&fit=crop';
+                        const features = s.features ? s.features.split(',').slice(0, 3) : [];
                         return `
-                            <div class="grid lg:grid-cols-2 gap-16 items-center reveal ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}">
-                                <div class="${i % 2 !== 0 ? 'order-2' : 'order-2 lg:order-1'} space-y-8 text-left">
-                                    <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                                        <i data-lucide="${s.icon || 'star'}" class="text-primary w-8 h-8"></i>
+                            <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 reveal flex flex-col" style="transition-delay:${i*60}ms">
+                                <div class="h-44 overflow-hidden relative">
+                                    <img src="${imgUrl}" class="w-full h-full object-cover" alt="${s.title}">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                                    <div class="absolute bottom-3 left-3 w-10 h-10 rounded-xl bg-white/90 backdrop-blur flex items-center justify-center shadow">
+                                        <i data-lucide="${s.icon || 'star'}" style="width:18px;height:18px;color:#1B365D"></i>
                                     </div>
-                                    <h2 class="text-4xl font-outfit font-black text-gray-900">${s.title}</h2>
-                                    <p class="text-lg text-gray-600 leading-relaxed whitespace-pre-line">${s.description || ''}</p>
-                                    
-                                    <div class="grid grid-cols-2 gap-4 max-w-sm">
-                                        <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col justify-center">
-                                            <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Prix de départ</span>
-                                            <span class="text-lg font-extrabold text-primary">${s.price || 'Non spécifié'}</span>
-                                        </div>
-                                        <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col justify-center">
-                                            <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Délai d'exécution</span>
-                                            <span class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                                                <i data-lucide="clock" class="w-4 h-4 text-accent"></i>
-                                                <span>${s.delay || 'Non spécifié'}</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    ${s.features ? `
-                                        <ul class="space-y-4 text-gray-600 font-medium">
-                                            ${s.features.split(',').map(f => `
-                                                <li class="flex items-center space-x-3">
-                                                    <i data-lucide="check-circle" class="text-emerald-500 w-5 h-5"></i>
-                                                    <span>${f.trim()}</span>
-                                                </li>
-                                            `).join('')}
-                                        </ul>
-                                    ` : ''}
-                                    <a href="contact.html" class="inline-flex items-center space-x-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-full hover:bg-primary transition-all">
-                                        <span>Demander un devis</span><i data-lucide="arrow-right" class="w-5 h-5"></i>
-                                    </a>
                                 </div>
-                                <div class="${i % 2 !== 0 ? 'order-1' : 'order-1 lg:order-2'}">
-                                    <img src="${imgUrl}" class="rounded-[3rem] shadow-2xl border-8 border-white w-full object-cover max-h-[450px]" alt="${s.title}">
+                                <div class="p-5 flex flex-col flex-1 gap-3">
+                                    <h3 class="text-lg font-outfit font-black text-gray-900 leading-snug">${s.title}</h3>
+                                    <p class="text-sm text-gray-500 leading-relaxed line-clamp-3">${(s.description || '').slice(0,120)}${s.description && s.description.length > 120 ? '…' : ''}</p>
+                                    <div class="flex gap-2 flex-wrap">
+                                        ${s.price ? `<span class="px-3 py-1 rounded-full bg-[#1B365D]/8 text-[#1B365D] text-[11px] font-bold">💰 ${s.price}</span>` : ''}
+                                        ${s.delay ? `<span class="px-3 py-1 rounded-full bg-[#5BC2C3]/10 text-[#1F8A9D] text-[11px] font-bold">⏱ ${s.delay}</span>` : ''}
+                                    </div>
+                                    ${features.length ? `<ul class="space-y-1.5">${features.map(f => `<li class="flex items-start gap-2 text-xs text-gray-600"><i data-lucide="check-circle" style="width:13px;height:13px;color:#5BC2C3;flex-shrink:0;margin-top:1px"></i><span>${f.trim()}</span></li>`).join('')}</ul>` : ''}
+                                    <a href="contact.html" class="mt-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-white text-sm font-bold transition-all hover:scale-105" style="background:linear-gradient(to right,#1B365D,#1F8A9D,#5BC2C3)">
+                                        Demander un devis <i data-lucide="arrow-right" style="width:14px;height:14px"></i>
+                                    </a>
                                 </div>
                             </div>
                         `;
                     }).join('')}
+                    </div>
                 </div>`;
             } else {
                 container.innerHTML = `<div class="container mx-auto px-6 text-center py-20 text-gray-400">Aucun service disponible pour le moment.</div>`;

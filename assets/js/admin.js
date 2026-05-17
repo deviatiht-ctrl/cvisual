@@ -129,8 +129,68 @@ const AdminApp = {
         }
     },
     async uploadFile(file) {
+        let fileToUpload = file;
+        
+        // Transparent client-side image compression
+        if (file && file.type.startsWith('image/')) {
+            try {
+                this.showLoader(); // Show loader during compression
+                const compressedBase64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const maxWidth = 800;
+                            const maxHeight = 800;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > maxWidth) {
+                                    height = Math.round((height * maxWidth) / width);
+                                    width = maxWidth;
+                                }
+                            } else {
+                                if (height > maxHeight) {
+                                    width = Math.round((width * maxHeight) / height);
+                                    height = maxHeight;
+                                }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            resolve(canvas.toDataURL('image/jpeg', 0.7));
+                        };
+                        img.onerror = reject;
+                    };
+                    reader.onerror = reject;
+                });
+
+                // Convert base64 back to Blob
+                const arr = compressedBase64.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                fileToUpload = new Blob([u8arr], { type: mime });
+                this.hideLoader();
+            } catch (err) {
+                this.hideLoader();
+                console.error('Image compression failed, uploading original:', err);
+            }
+        }
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', fileToUpload, file.name || 'image.jpg');
         const response = await fetch(`${API_BASE}/admin/upload`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${this.getToken()}` },

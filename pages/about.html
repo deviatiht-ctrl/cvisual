@@ -55,9 +55,10 @@
         }
 
         .text-gradient {
-            background: linear-gradient(135deg, #1E40AF 0%, #F97316 100%);
+            background: linear-gradient(to right, #1B365D, #1F8A9D, #5BC2C3);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .reveal {
@@ -90,7 +91,7 @@
                     <img src="../assets/logo.jpg" class="w-full h-full object-cover" alt="Logo">
                 </div>
                 <div class="flex flex-col leading-none">
-                    <span class="text-2xl font-outfit font-black tracking-tight text-gray-900">CVisual</span>
+                    <span class="text-2xl font-outfit font-black tracking-tight text-gray-900"><span style="color:#1B365D">C</span><span style="color:#5BC2C3">visual</span></span>
                     <span class="text-[9px] uppercase tracking-widest text-primary font-bold">Creative Agency</span>
                 </div>
             </a>
@@ -101,9 +102,9 @@
                 <a href="about.html" class="px-4 py-2 rounded-full bg-white shadow-sm text-primary font-bold text-sm">À Propos</a>
             </nav>
             <div class="flex items-center space-x-3">
-                <div id="auth-buttons" class="hidden sm:flex items-center space-x-3">
-                    <a href="auth/login.html" class="px-5 py-2 text-sm font-bold text-gray-700">Connexion</a>
-                    <a href="auth/register.html" class="px-5 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">S'inscrire</a>
+                <div id="auth-buttons" class="hidden md:flex items-center space-x-3">
+                    <a href="auth/login.html" class="px-4 py-2 text-sm font-bold text-gray-700">Connexion</a>
+                    <a href="auth/register.html" class="px-4 py-2 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">S'inscrire</a>
                 </div>
                 <div id="user-profile" class="hidden items-center space-x-3">
                     <div class="text-right hidden sm:block">
@@ -255,6 +256,7 @@
     </footer>
 
     <script src="../assets/js/public.js"></script>
+    <script src="../assets/js/bottom-nav.js"></script>
     <script>
         lucide.createIcons();
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
