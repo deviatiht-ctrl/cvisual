@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Emails - CVisual Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/admin-responsive.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .sidebar { background: #0f172a; color: white; height: 100vh; position: fixed; width: 260px; transition: all 0.3s; }
+        .nav-link { display: flex; items-center: center; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.75rem; margin: 0.25rem 1rem; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.05); color: white; }
+        .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+        .card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .tab-btn.active { border-color: #3b82f6; color: #3b82f6; }
+        pre { font-family: 'Courier New', Courier, monospace; }
+    </style>
+</head>
+<body class="admin-layout">
+    <script src="../../assets/js/admin-responsive.js"></script>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="p-8 mb-4">
+            <div class="flex items-center space-x-3">
+                <img src="../../assets/logo.jpg" class="w-10 h-10 rounded-xl" alt="Logo">
+                <span class="text-xl font-bold font-outfit tracking-tighter">CVISUAL</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../../index.html" class="nav-link text-blue-400 font-bold mb-4 border-b border-white/10 pb-4">
+                <i data-lucide="external-link" class="w-5 h-5 mr-3"></i>
+                Retour au Site
+            </a>
+            <a href="dashboard.html" class="nav-link">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
+                Dashboard
+            </a>
+            <a href="portfolio.html" class="nav-link">
+                <i data-lucide="briefcase" class="w-5 h-5 mr-3"></i>
+                Portfolio
+            </a>
+            <a href="services.html" class="nav-link">
+                <i data-lucide="layers" class="w-5 h-5 mr-3"></i>
+                Services
+            </a>
+            <a href="news.html" class="nav-link">
+                <i data-lucide="newspaper" class="w-5 h-5 mr-3"></i>
+                News & Jobs
+            </a>
+            <a href="recruitment_form.html" class="nav-link">
+                <i data-lucide="settings-2" class="w-5 h-5 mr-3"></i>
+                Config Recrutement
+            </a>
+            <a href="applications.html" class="nav-link">
+                <i data-lucide="users" class="w-5 h-5 mr-3"></i>
+                Candidatures
+            </a>
+            <a href="clients.html" class="nav-link">
+                <i data-lucide="image" class="w-5 h-5 mr-3"></i>
+                Clients/Logos
+            </a>
+            <a href="newsletter.html" class="nav-link">
+                <i data-lucide="mail" class="w-5 h-5 mr-3"></i>
+                Newsletter
+            </a>
+            <a href="emails.html" class="nav-link active">
+                <i data-lucide="settings" class="w-5 h-5 mr-3"></i>
+                Emails & Templates
+            </a>
+            <a href="chat.html" class="nav-link">
+                <i data-lucide="message-square" class="w-5 h-5 mr-3"></i>
+                Chat Support
+            </a>
+            <a href="settings.html" class="nav-link">
+                <i data-lucide="settings" class="w-5 h-5 mr-3"></i>
+                Paramètres
+            </a>
+        </nav>
+        <div class="absolute bottom-8 w-full px-4">
+            <button onclick="AdminApp.logout()" class="flex items-center w-full p-4 text-red-400 hover:bg-red-500/10 rounded-2xl transition">
+                <i data-lucide="log-out" class="w-5 h-5 mr-3"></i>Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Emails & Templates</h1>
+                <p class="text-gray-500 mt-1">Gérez vos templates d'emails automatiques, changez le logo et diffusez des annonces.</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-gray-200 mb-8 space-x-8">
+            <button onclick="switchTab('templates')" id="tab-templates" class="tab-btn py-4 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all active">
+                Modèles d'Emails (Templates)
+            </button>
+            <button onclick="switchTab('broadcast')" id="tab-broadcast" class="tab-btn py-4 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">
+                Diffusion Générale (Broadcast)
+            </button>
+            <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn py-4 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">
+                Logo & Paramètres Globaux
+            </button>
+        </div>
+
+        <!-- TAB: TEMPLATES -->
+        <div id="section-templates" class="tab-section space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Templates Sidebar List -->
+                <div class="lg:col-span-1 space-y-4" id="templateList">
+                    <!-- Loaded dynamically -->
+                </div>
+
+                <!-- Template Editor Area -->
+                <div class="lg:col-span-2 card p-8 hidden" id="editorContainer">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900" id="editorName">Chargement...</h2>
+                            <p class="text-xs text-gray-400 mt-1">Clé API : <span id="editorKey" class="font-mono">key</span></p>
+                        </div>
+                        <button onclick="saveTemplate()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center transition shadow-lg shadow-blue-600/10">
+                            <i data-lucide="save" class="w-5 h-5 mr-2"></i>Enregistrer
+                        </button>
+                    </div>
+
+                    <form class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Sujet de l'Email</label>
+                            <input type="text" id="tplSubject" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div class="md:col-span-3">
+                                <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Corps de l'Email (HTML autorisé)</label>
+                                <textarea id="tplBody" rows="18" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono text-sm leading-relaxed"></textarea>
+                            </div>
+                            <div class="md:col-span-1 space-y-4">
+                                <div>
+                                    <h4 class="text-xs font-bold uppercase text-gray-500 mb-2">Variables disponibles</h4>
+                                    <p class="text-xs text-gray-400 leading-normal mb-4">Utilisez ces balises dans le sujet ou le corps pour insérer des valeurs dynamiques.</p>
+                                    <div class="space-y-2" id="tplVariables">
+                                        <!-- Loaded dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Template Placeholder -->
+                <div class="lg:col-span-2 card p-12 flex flex-col items-center justify-center text-center border-dashed" id="editorPlaceholder">
+                    <i data-lucide="mail-open" class="w-16 h-16 text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-bold text-gray-700">Aucun modèle sélectionné</h3>
+                    <p class="text-gray-400 mt-2 max-w-sm text-sm">Sélectionnez un modèle d'email dans la liste de gauche pour l'éditer, modifier son sujet ou restyler son contenu.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: BROADCAST -->
+        <div id="section-broadcast" class="tab-section space-y-8 hidden">
+            <div class="max-w-3xl card p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2 flex items-center">
+                    <i data-lucide="send" class="text-blue-500 w-6 h-6 mr-3"></i> Diffusion d'Email Général
+                </h2>
+                <p class="text-gray-500 text-sm mb-6">Envoyez une annonce ou un message marketing à toute votre communauté CVisual.</p>
+
+                <form id="broadcastForm" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Destinataires (Audience Cible)</label>
+                        <select id="bcTarget" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                            <option value="newsletter">Abonnés à la Newsletter uniquement</option>
+                            <option value="applications">Tous les Candidats Rekritman</option>
+                            <option value="users">Tous les Utilisateurs enregistrés sur le site</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Sujet de la Diffusion</label>
+                        <input type="text" id="bcSubject" required placeholder="Ex: Grande annonce de recrutement..." class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Message (Sera automatiquement inséré dans votre modèle d'email général)</label>
+                        <textarea id="bcMessage" required rows="10" placeholder="Entrez le contenu de votre email ici..." class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all leading-relaxed"></textarea>
+                    </div>
+
+                    <button type="submit" id="bcSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center">
+                        <i data-lucide="send" class="w-5 h-5 mr-2"></i> Diffuser le message
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: SETTINGS -->
+        <div id="section-settings" class="tab-section space-y-8 hidden">
+            <div class="max-w-xl card p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2 flex items-center">
+                    <i data-lucide="image" class="text-blue-500 w-6 h-6 mr-3"></i> Logo Officiel CVisual
+                </h2>
+                <p class="text-gray-500 text-sm mb-6">Modifiez l'URL du logo officiel. Ce logo apparaîtra automatiquement en en-tête de tous les emails envoyés par le site.</p>
+
+                <form id="settingsForm" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-2">URL du Logo (jpg, png ou webp)</label>
+                        <input type="url" id="logoUrl" required class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+
+                    <div class="p-4 bg-gray-50 border border-gray-100 rounded-2xl flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-xl bg-white border border-gray-200 p-2 flex items-center justify-center">
+                            <img id="logoPreview" src="../../assets/logo.jpg" alt="Logo Preview" class="max-w-full max-h-full rounded object-contain">
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-700">Aperçu du Logo</h4>
+                            <p class="text-xs text-gray-400 mt-1">Sera inséré via la balise <span class="font-mono">{logo_url}</span></p>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="saveSettingsBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center">
+                        <i data-lucide="save" class="w-5 h-5 mr-2"></i> Enregistrer les paramètres
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../assets/js/admin.js"></script>
+    <script>
+        let templates = [];
+        let activeTemplateId = null;
+
+        // Init Lucide
+        lucide.createIcons();
+
+        // Switch Tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'border-blue-600', 'text-blue-600'));
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if (activeBtn) activeBtn.classList.add('active', 'border-blue-600', 'text-blue-600');
+            
+            const activeSec = document.getElementById(`section-${tab}`);
+            if (activeSec) activeSec.classList.remove('hidden');
+
+            if (tab === 'templates') {
+                loadTemplates();
+            } else if (tab === 'settings') {
+                loadSettings();
+            }
+        }
+
+        // Fetch & Populate Settings
+        async function loadSettings() {
+            const data = await AdminApp.request('/admin/emails/settings');
+            if (data && data.logo_url) {
+                document.getElementById('logoUrl').value = data.logo_url;
+                document.getElementById('logoPreview').src = data.logo_url;
+            }
+        }
+
+        // Save Settings
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveSettingsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin mr-2"></i> Enregistrement...';
+            lucide.createIcons();
+
+            const logo_url = document.getElementById('logoUrl').value;
+            const res = await AdminApp.request('/admin/emails/settings', {
+                method: 'POST',
+                body: JSON.stringify({ logo_url })
+            });
+
+            if (res && res.success) {
+                document.getElementById('logoPreview').src = logo_url;
+                alert('URL du logo enregistrée avec succès !');
+            } else {
+                alert('Une erreur est survenue lors de l\'enregistrement.');
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="save" class="w-5 h-5 mr-2"></i> Enregistrer les paramètres';
+            lucide.createIcons();
+        });
+
+        // Fetch & Populate Templates List
+        async function loadTemplates() {
+            const list = document.getElementById('templateList');
+            list.innerHTML = `
+                <div class="py-10 text-center text-gray-400">
+                    <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-3"></i>
+                    <p class="text-sm">Chargement des modèles...</p>
+                </div>
+            `;
+            lucide.createIcons();
+
+            const data = await AdminApp.request('/admin/emails/templates');
+            if (!data || data.error) {
+                list.innerHTML = `<div class="p-6 text-center text-red-500 font-bold bg-red-50 rounded-2xl">Erreur lors de la récupération des modèles.</div>`;
+                return;
+            }
+
+            templates = data;
+            
+            if (templates.length === 0) {
+                list.innerHTML = `<div class="p-6 text-center text-gray-400 font-bold bg-gray-50 rounded-2xl">Aucun modèle d'email enregistré.</div>`;
+                return;
+            }
+
+            list.innerHTML = templates.map(t => {
+                const isActive = t.id === activeTemplateId;
+                return `
+                    <div onclick="selectTemplate(${t.id})" class="p-5 rounded-2xl cursor-pointer transition-all border ${isActive ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/10' : 'bg-white hover:bg-gray-50 border-gray-200'}">
+                        <div class="flex items-start justify-between">
+                            <h3 class="font-bold text-sm ${isActive ? 'text-white' : 'text-gray-800'}">${t.name}</h3>
+                            <i data-lucide="chevron-right" class="w-4 h-4 mt-0.5 opacity-50"></i>
+                        </div>
+                        <p class="text-xs mt-2 font-semibold ${isActive ? 'text-blue-100' : 'text-gray-400'} truncate">${t.subject}</p>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // Select a Template to Edit
+        function selectTemplate(id) {
+            activeTemplateId = id;
+            loadTemplates(); // Reload list to update active styles
+
+            const t = templates.find(item => item.id === id);
+            if (!t) return;
+
+            document.getElementById('editorPlaceholder').classList.add('hidden');
+            document.getElementById('editorContainer').classList.remove('hidden');
+
+            document.getElementById('editorName').textContent = t.name;
+            document.getElementById('editorKey').textContent = t.key;
+            document.getElementById('tplSubject').value = t.subject;
+            document.getElementById('tplBody').value = t.body;
+
+            // Render variables
+            const varsContainer = document.getElementById('tplVariables');
+            if (t.variables) {
+                const varList = t.variables.split(',').map(v => v.trim());
+                varsContainer.innerHTML = varList.map(v => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                        <code class="text-xs font-bold text-blue-600 select-all font-mono">{${v}}</code>
+                        <i data-lucide="copy" onclick="navigator.clipboard.writeText('{${v}}'); alert('Copié : {${v}}');" class="w-3.5 h-3.5 text-gray-400 hover:text-blue-600 cursor-pointer"></i>
+                    </div>
+                `).join('');
+            } else {
+                varsContainer.innerHTML = `<p class="text-xs text-gray-400">Aucune variable spécifique.</p>`;
+            }
+            lucide.createIcons();
+        }
+
+        // Save Template Changes
+        async function saveTemplate() {
+            if (!activeTemplateId) return;
+
+            const t = templates.find(item => item.id === activeTemplateId);
+            if (!t) return;
+
+            const subject = document.getElementById('tplSubject').value;
+            const body = document.getElementById('tplBody').value;
+
+            const res = await AdminApp.request(`/admin/emails/templates/${activeTemplateId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ subject, body })
+            });
+
+            if (res && res.success) {
+                alert(`Le modèle "${t.name}" a été enregistré avec succès !`);
+                loadTemplates();
+            } else {
+                alert('Erreur lors de l\'enregistrement.');
+            }
+        }
+
+        // Handle Broadcast Submission
+        document.getElementById('broadcastForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('bcSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin mr-2"></i> Envoi en cours...';
+            lucide.createIcons();
+
+            const target = document.getElementById('bcTarget').value;
+            const subject = document.getElementById('bcSubject').value;
+            const message = document.getElementById('bcMessage').value;
+
+            const res = await AdminApp.request('/admin/emails/broadcast', {
+                method: 'POST',
+                body: JSON.stringify({ target, subject, message })
+            });
+
+            if (res && res.success) {
+                alert(`Félicitations ! Diffusion réussie. ${res.sent_count} emails ont été envoyés avec succès sur un total de ${res.total} destinataires !`);
+                e.target.reset();
+            } else {
+                alert('Une erreur est survenue lors de la diffusion du message.');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="send" class="w-5 h-5 mr-2"></i> Diffuser le message';
+            lucide.createIcons();
+        });
+
+        // On Load
+        loadTemplates();
+    </script>
+</body>
+</html>
