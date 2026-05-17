@@ -211,7 +211,7 @@ const CVisual = {
 
     getImageUrl(path) {
         if (!path) return '';
-        if (path.startsWith('http')) return path;
+        if (path.startsWith('http') || path.startsWith('data:')) return path;
         const base = API_BASE.replace('/api', '');
         return `${base}${path}`;
     }

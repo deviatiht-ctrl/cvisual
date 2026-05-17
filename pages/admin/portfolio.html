@@ -169,7 +169,7 @@
                 projectsCache = projects;
                 const list = document.getElementById('projectList');
                 list.innerHTML = projectsCache.map(p => {
-                    const imgUrl = p.main_image ? (p.main_image.startsWith('http') ? p.main_image : `${API_BASE.replace('/api','')}${p.main_image}`) : '../../assets/placeholder-portfolio.jpg';
+                    const imgUrl = p.main_image ? ((p.main_image.startsWith('http') || p.main_image.startsWith('data:')) ? p.main_image : `${API_BASE.replace('/api','')}${p.main_image}`) : '../../assets/placeholder-portfolio.jpg';
                     return `
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group">
                             <div class="relative h-48 overflow-hidden">
