@@ -116,10 +116,20 @@
                 <a href="news.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">Actualités</a>
                 <a href="about.html" class="px-4 py-2 rounded-full text-gray-600 font-semibold text-sm hover:text-primary transition-colors">À Propos</a>
             </nav>
-            <a href="contact.html" class="hidden sm:block px-6 py-2.5 rounded-full bg-primary text-white font-bold text-sm hover:bg-gray-900 transition-all">Contact</a>
-            <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100">
-                <i data-lucide="menu" class="w-5 h-5"></i>
-            </button>
+            <div class="flex items-center space-x-3">
+                <div id="auth-buttons" class="hidden sm:flex items-center space-x-3">
+                    <a href="auth/login.html" class="px-5 py-2 text-sm font-bold text-gray-700">Connexion</a>
+                    <a href="auth/register.html" class="px-5 py-2.5 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">S'inscrire</a>
+                </div>
+                <div id="user-profile" class="hidden items-center space-x-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-[10px] font-black uppercase text-gray-900" id="user-name">...</p>
+                        <button onclick="logoutUser()" class="text-[8px] font-bold text-red-500 uppercase">Quitter</button>
+                    </div>
+                    <div class="w-10 h-10 bg-gray-900 text-white rounded-full flex items-center justify-center font-bold">U</div>
+                </div>
+                <button id="mobileMenuBtn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"><i data-lucide="menu" class="w-5 h-5"></i></button>
+            </div>
         </header>
     </div>
 
@@ -138,6 +148,21 @@
                 <a href="news.html" class="p-4 rounded-2xl hover:bg-gray-50">Actualités</a>
                 <a href="about.html" class="p-4 rounded-2xl hover:bg-gray-50">À Propos</a>
                 <a href="contact.html" class="p-4 rounded-2xl bg-primary text-white text-center mt-4 shadow-lg shadow-primary/20">Contact</a>
+                
+                <!-- Responsive Connection / Registration Buttons for Mobile Menu -->
+                <div id="mobile-auth-buttons" class="flex flex-col gap-3 mt-6 pt-6 border-t border-gray-100">
+                    <a href="auth/login.html" class="p-4 rounded-2xl border border-gray-200 text-center font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 transition-all">Connexion</a>
+                    <a href="auth/register.html" class="p-4 rounded-2xl bg-primary text-white text-center font-bold hover:bg-primary/95 transition-all">S'inscrire</a>
+                </div>
+                <div id="mobile-user-profile" class="hidden flex-col gap-3 mt-6 pt-6 border-t border-gray-100">
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="w-10 h-10 bg-gray-900 text-white rounded-full flex items-center justify-center font-bold shadow-md">U</div>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-black uppercase text-gray-900" id="mobile-user-name">...</span>
+                            <button onclick="logoutUser()" class="text-[10px] font-bold text-red-500 uppercase text-left hover:underline">Quitter / Déconnexion</button>
+                        </div>
+                    </div>
+                </div>
             </nav>
         </div>
     </div>
@@ -347,6 +372,57 @@
             });
         });
         window.dispatchEvent(new Event('scroll'));
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUserAuth();
+        });
+
+        function checkUserAuth() {
+            const token = localStorage.getItem('userToken');
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const authBtns = document.getElementById('auth-buttons');
+            const profile = document.getElementById('user-profile');
+            const mobileAuthBtns = document.getElementById('mobile-auth-buttons');
+            const mobileProfile = document.getElementById('mobile-user-profile');
+            
+            if (token && userData.name) {
+                if (authBtns) authBtns.classList.add('hidden');
+                if (profile) {
+                    profile.classList.remove('hidden');
+                    profile.classList.add('flex');
+                }
+                const nameEl = document.getElementById('user-name');
+                if (nameEl) nameEl.textContent = userData.name;
+                
+                // Mobile
+                if (mobileAuthBtns) mobileAuthBtns.classList.add('hidden');
+                if (mobileProfile) {
+                    mobileProfile.classList.remove('hidden');
+                    mobileProfile.classList.add('flex');
+                }
+                const mobileNameEl = document.getElementById('mobile-user-name');
+                if (mobileNameEl) mobileNameEl.textContent = userData.name;
+            } else {
+                if (authBtns) {
+                    authBtns.classList.remove('hidden');
+                    authBtns.classList.add('flex');
+                }
+                if (profile) profile.classList.add('hidden');
+                
+                // Mobile
+                if (mobileAuthBtns) {
+                    mobileAuthBtns.classList.remove('hidden');
+                    mobileAuthBtns.classList.add('flex');
+                }
+                if (mobileProfile) mobileProfile.classList.add('hidden');
+            }
+        }
+
+        window.logoutUser = () => {
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('userData');
+            window.location.reload();
+        };
 
         const API_BASE = 'https://cvisual-backend.onrender.com/api';
         document.getElementById('contactForm').addEventListener('submit', async (e) => {
