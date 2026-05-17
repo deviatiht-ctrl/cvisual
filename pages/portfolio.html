@@ -300,7 +300,7 @@
                             </div>
                         ` : ''}
                     </div>
-                    <div class="lg:w-2/5 p-8 md:p-16 flex flex-col justify-center space-y-10 overflow-y-auto">
+                    <div class="lg:w-2/5 p-8 md:p-12 flex flex-col justify-start space-y-8 overflow-y-auto">
                         <div>
                             <span class="text-primary font-black uppercase tracking-[0.2em] text-xs mb-4 block">${p.category}</span>
                             <h2 class="text-4xl md:text-5xl font-outfit font-black text-gray-900 mb-6">${p.title}</h2>
@@ -309,11 +309,11 @@
                         <div class="space-y-8">
                             <div>
                                 <h4 class="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Description</h4>
-                                <p class="text-gray-600 text-lg leading-relaxed italic">"${p.challenge || 'Non spécifié'}"</p>
+                                <p class="text-gray-600 text-lg leading-relaxed italic whitespace-pre-line">"${p.challenge || 'Non spécifié'}"</p>
                             </div>
                             <div>
                                 <h4 class="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Solution</h4>
-                                <p class="text-gray-600 text-lg leading-relaxed">${p.solution || 'Non spécifié'}</p>
+                                <p class="text-gray-600 text-lg leading-relaxed whitespace-pre-line">${p.solution || 'Non spécifié'}</p>
                             </div>
                         </div>
                         ${p.live_link ? `
