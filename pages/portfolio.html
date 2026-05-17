@@ -165,10 +165,10 @@
                     <span class="text-sm font-bold text-gray-400 uppercase tracking-widest">Filtrer :</span>
                     <select id="categoryFilter" class="bg-gray-50 border border-gray-100 rounded-full px-6 py-2.5 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                         <option value="all">Tous les Projets</option>
-                        <option value="web">Sites Web</option>
-                        <option value="photography">Photographie</option>
-                        <option value="branding">Branding</option>
-                        <option value="social">Réseaux Sociaux</option>
+                        <option value="Site Web">Sites Web</option>
+                        <option value="Photographie">Photographie</option>
+                        <option value="Design Graphique">Design Graphique</option>
+                        <option value="Community Management">Community Management</option>
                     </select>
                 </div>
             </div>
@@ -227,41 +227,61 @@
         async function renderProjects() {
             try {
                 currentProjects = await CVisual.fetchPortfolio();
-                const grid = document.getElementById('portfolioGrid');
-                const count = document.getElementById('resultsCount');
-                
-                if (!currentProjects || currentProjects.length === 0) {
-                    grid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 font-medium">Aucun projet trouvé.</div>';
-                    count.textContent = 0;
-                    return;
-                }
-
-                count.textContent = currentProjects.length;
-                grid.innerHTML = currentProjects.map(p => `
-                    <article class="portfolio-card bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl group">
-                        <div class="relative aspect-[4/3] overflow-hidden">
-                            <img src="${p.main_image}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-8">
-                                <button onclick="openProjectDetails(${p.id})" class="w-full py-4 bg-white text-gray-900 font-bold rounded-2xl flex items-center justify-center space-x-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                    <span>Découvrir le Projet</span>
-                                    <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                            <div class="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-primary font-bold text-xs uppercase tracking-widest shadow-sm">
-                                ${p.category}
-                            </div>
-                        </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-outfit font-black mb-3 group-hover:text-primary transition-colors">${p.title}</h3>
-                            <p class="text-gray-500 text-sm line-clamp-2 mb-0">${p.challenge || 'Transformation visuelle d\'exception.'}</p>
-                        </div>
-                    </article>
-                `).join('');
-                lucide.createIcons();
+                filterAndRender();
             } catch (err) {
                 console.error(err);
             }
         }
+
+        function filterAndRender() {
+            const filterVal = document.getElementById('categoryFilter').value;
+            const grid = document.getElementById('portfolioGrid');
+            const count = document.getElementById('resultsCount');
+
+            const filtered = filterVal === 'all'
+                ? currentProjects
+                : currentProjects.filter(p => p.category === filterVal);
+
+            if (!filtered || filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 font-medium">Aucun projet trouvé.</div>';
+                count.textContent = 0;
+                return;
+            }
+
+            count.textContent = filtered.length;
+            grid.innerHTML = filtered.map(p => `
+                <article class="portfolio-card bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl group">
+                    <div class="relative aspect-[4/3] overflow-hidden">
+                        <img src="${CVisual.getImageUrl(p.main_image)}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-8">
+                            <button onclick="openProjectDetails(${p.id})" class="w-full py-4 bg-white text-gray-900 font-bold rounded-2xl flex items-center justify-center space-x-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                <span>Découvrir le Projet</span>
+                                <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-primary font-bold text-xs uppercase tracking-widest shadow-sm">
+                            ${p.category}
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-outfit font-black mb-3 group-hover:text-primary transition-colors">${p.title}</h3>
+                        <p class="text-gray-500 text-sm line-clamp-2 mb-4">${p.challenge || 'Transformation visuelle d\'exception.'}</p>
+                        ${p.live_link ? `
+                            <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Projet en ligne</span>
+                                <a href="${p.live_link}" target="_blank" class="text-primary hover:text-accent font-bold text-sm flex items-center space-x-1">
+                                    <span>Visiter le site</span>
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                        ` : ''}
+                    </div>
+                </article>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        document.getElementById('categoryFilter').addEventListener('change', filterAndRender);
 
         function openProjectDetails(id) {
             const p = currentProjects.find(item => item.id === id);
@@ -273,10 +293,10 @@
             content.innerHTML = `
                 <div class="flex flex-col lg:flex-row h-full">
                     <div class="lg:w-3/5 bg-gray-50 overflow-y-auto p-4 md:p-12">
-                        <img src="${p.main_image}" class="w-full rounded-3xl shadow-2xl mb-8" alt="${p.title}">
+                        <img src="${CVisual.getImageUrl(p.main_image)}" class="w-full rounded-3xl shadow-2xl mb-8" alt="${p.title}">
                         ${p.gallery && p.gallery.length > 0 ? `
                             <div class="grid gap-8">
-                                ${p.gallery.map(img => `<img src="${img}" class="w-full rounded-3xl shadow-xl">`).join('')}
+                                ${p.gallery.map(img => `<img src="${CVisual.getImageUrl(img)}" class="w-full rounded-3xl shadow-xl">`).join('')}
                             </div>
                         ` : ''}
                     </div>
@@ -288,17 +308,17 @@
                         </div>
                         <div class="space-y-8">
                             <div>
-                                <h4 class="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Le Défi</h4>
+                                <h4 class="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Description</h4>
                                 <p class="text-gray-600 text-lg leading-relaxed italic">"${p.challenge || 'Non spécifié'}"</p>
                             </div>
                             <div>
-                                <h4 class="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Notre Solution</h4>
+                                <h4 class="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Solution</h4>
                                 <p class="text-gray-600 text-lg leading-relaxed">${p.solution || 'Non spécifié'}</p>
                             </div>
                         </div>
                         ${p.live_link ? `
-                            <a href="${p.live_link}" target="_blank" class="inline-flex items-center space-x-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-primary transition-all self-start">
-                                <span>Voir le site live</span>
+                            <a href="${p.live_link}" target="_blank" class="inline-flex items-center space-x-3 px-8 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-accent shadow-lg shadow-primary/25 hover:shadow-accent/25 transition-all self-start">
+                                <span>Visiter le Projet</span>
                                 <i data-lucide="external-link" class="w-5 h-5"></i>
                             </a>
                         ` : ''}
