@@ -117,13 +117,15 @@
                     
                     <div>
                         <label class="block text-sm font-medium mb-1">Image Principale</label>
-                        <div class="relative group">
+                        <div class="relative group mb-2">
                             <input type="file" id="formMainImageFile" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                             <div class="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center bg-gray-50 group-hover:bg-blue-50 group-hover:border-blue-200 transition-all">
                                 <i data-lucide="image" class="w-6 h-6 text-gray-300 group-hover:text-blue-500 mb-1"></i>
-                                <p class="text-[10px] text-gray-500" id="mainImageFileName">Choisir une image</p>
+                                <p class="text-[10px] text-gray-500" id="mainImageFileName">Choisir une image locale</p>
                             </div>
                         </div>
+                        <div class="text-center text-[10px] font-bold text-gray-400 my-1">— OU —</div>
+                        <input type="url" id="formMainImageUrl" placeholder="Coller l'URL d'une image en ligne (ex: https://...)" class="w-full border rounded-lg p-2 text-sm">
                         <input type="hidden" id="formMainImage" name="main_image">
                     </div>
 
@@ -198,6 +200,7 @@
                 document.getElementById('projectForm').reset();
                 projectIdField.value = "";
                 document.getElementById('formMainImage').value = "";
+                document.getElementById('formMainImageUrl').value = "";
                 document.getElementById('mainImageFileName').textContent = 'Choisir une image';
                 modalTitle.textContent = "Ajouter un Projet";
                 submitBtn.textContent = "Publier le projet";
@@ -223,6 +226,14 @@
             document.getElementById('formSolution').value = p.solution || "";
             document.getElementById('formLiveLink').value = p.live_link || "";
             document.getElementById('formMainImage').value = p.main_image || "";
+            
+            const urlInput = document.getElementById('formMainImageUrl');
+            if (p.main_image && p.main_image.startsWith('http')) {
+                urlInput.value = p.main_image;
+            } else {
+                urlInput.value = "";
+            }
+            
             document.getElementById('mainImageFileName').textContent = p.main_image ? 'Image actuelle conservée' : 'Choisir une image';
         }
 
@@ -240,9 +251,14 @@
 
             const projectId = document.getElementById('projectIdField').value;
             const fileInput = document.getElementById('formMainImageFile');
+            const urlInput = document.getElementById('formMainImageUrl');
             
-            let mainImage = document.getElementById('formMainImage').value;
-            if (fileInput.files.length > 0) {
+            let mainImage = urlInput ? urlInput.value.trim() : '';
+            if (!mainImage) {
+                mainImage = document.getElementById('formMainImage').value;
+            }
+            
+            if (!urlInput.value.trim() && fileInput.files.length > 0) {
                 const uploadRes = await AdminApp.uploadFile(fileInput.files[0]);
                 if (uploadRes.success) mainImage = uploadRes.url;
             }
