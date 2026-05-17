@@ -128,13 +128,16 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-1">Icône (Clé)</label>
+                        <label class="block text-sm font-medium mb-1">Icône du Service</label>
                         <select name="icon" id="formIcon" class="w-full border rounded-lg p-2">
-                            <option value="website">Website</option>
-                            <option value="camera">Camera</option>
-                            <option value="community">Community</option>
-                            <option value="design">Design</option>
-                            <option value="content">Content</option>
+                            <option value="layout">🖥️ Design Web / UI/UX (layout)</option>
+                            <option value="camera">📸 Photographie / Vidéo (camera)</option>
+                            <option value="share-2">📱 Réseaux Sociaux / CM (share-2)</option>
+                            <option value="globe">🌐 Site Web / Tech (globe)</option>
+                            <option value="palette">🎨 Graphisme & Design (palette)</option>
+                            <option value="trending-up">📈 Marketing / Stratégie (trending-up)</option>
+                            <option value="pen-tool">✒️ Rédaction / Création (pen-tool)</option>
+                            <option value="users">👥 Consultation / Formation (users)</option>
                         </select>
                     </div>
 
@@ -224,7 +227,7 @@
             document.getElementById('formPrice').value = s.price || '';
             document.getElementById('formDelay').value = s.delay || '';
             document.getElementById('formDescription').value = s.description || '';
-            document.getElementById('formIcon').value = s.icon || 'website';
+            document.getElementById('formIcon').value = s.icon || 'layout';
             document.getElementById('formImage').value = s.image || '';
             if (s.image && s.image.startsWith('http')) {
                 document.getElementById('formImageUrl').value = s.image;
