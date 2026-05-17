@@ -195,33 +195,51 @@
             const container = document.getElementById('services-container');
             if (services && services.length > 0) {
                 container.innerHTML = `<div class="container mx-auto px-6 space-y-32">
-                    ${services.map((s, i) => `
-                        <div class="grid lg:grid-cols-2 gap-16 items-center reveal ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}">
-                            <div class="${i % 2 !== 0 ? 'order-2' : 'order-2 lg:order-1'} space-y-8 text-left">
-                                <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                                    <i data-lucide="${s.icon || 'star'}" class="text-primary w-8 h-8"></i>
+                    ${services.map((s, i) => {
+                        const imgUrl = CVisual.getImageUrl(s.image) || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&h=600&fit=crop';
+                        return `
+                            <div class="grid lg:grid-cols-2 gap-16 items-center reveal ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}">
+                                <div class="${i % 2 !== 0 ? 'order-2' : 'order-2 lg:order-1'} space-y-8 text-left">
+                                    <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
+                                        <i data-lucide="${s.icon || 'star'}" class="text-primary w-8 h-8"></i>
+                                    </div>
+                                    <h2 class="text-4xl font-outfit font-black text-gray-900">${s.title}</h2>
+                                    <p class="text-lg text-gray-600 leading-relaxed whitespace-pre-line">${s.description || ''}</p>
+                                    
+                                    <div class="grid grid-cols-2 gap-4 max-w-sm">
+                                        <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col justify-center">
+                                            <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Prix de départ</span>
+                                            <span class="text-lg font-extrabold text-primary">${s.price || 'Non spécifié'}</span>
+                                        </div>
+                                        <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col justify-center">
+                                            <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Délai d'exécution</span>
+                                            <span class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                                                <i data-lucide="clock" class="w-4 h-4 text-accent"></i>
+                                                <span>${s.delay || 'Non spécifié'}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    ${s.features ? `
+                                        <ul class="space-y-4 text-gray-600 font-medium">
+                                            ${s.features.split(',').map(f => `
+                                                <li class="flex items-center space-x-3">
+                                                    <i data-lucide="check-circle" class="text-emerald-500 w-5 h-5"></i>
+                                                    <span>${f.trim()}</span>
+                                                </li>
+                                            `).join('')}
+                                        </ul>
+                                    ` : ''}
+                                    <a href="contact.html" class="inline-flex items-center space-x-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-full hover:bg-primary transition-all">
+                                        <span>Demander un devis</span><i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                    </a>
                                 </div>
-                                <h2 class="text-4xl font-outfit font-black text-gray-900">${s.title}</h2>
-                                <p class="text-lg text-gray-600 leading-relaxed">${s.description}</p>
-                                ${s.features ? `
-                                    <ul class="space-y-4 text-gray-600 font-medium">
-                                        ${s.features.split(',').map(f => `
-                                            <li class="flex items-center space-x-3">
-                                                <i data-lucide="check-circle" class="text-emerald-500 w-5 h-5"></i>
-                                                <span>${f.trim()}</span>
-                                            </li>
-                                        `).join('')}
-                                    </ul>
-                                ` : ''}
-                                <a href="contact.html" class="inline-flex items-center space-x-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-full hover:bg-primary transition-all">
-                                    <span>Demander un devis</span><i data-lucide="arrow-right" class="w-5 h-5"></i>
-                                </a>
+                                <div class="${i % 2 !== 0 ? 'order-1' : 'order-1 lg:order-2'}">
+                                    <img src="${imgUrl}" class="rounded-[3rem] shadow-2xl border-8 border-white w-full object-cover max-h-[450px]" alt="${s.title}">
+                                </div>
                             </div>
-                            <div class="${i % 2 !== 0 ? 'order-1' : 'order-1 lg:order-2'}">
-                                <img src="${s.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&h=600&fit=crop'}" class="rounded-[3rem] shadow-2xl border-8 border-white" alt="${s.title}">
-                            </div>
-                        </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>`;
             } else {
                 container.innerHTML = `<div class="container mx-auto px-6 text-center py-20 text-gray-400">Aucun service disponible pour le moment.</div>`;
