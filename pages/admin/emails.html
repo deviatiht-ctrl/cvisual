@@ -11,7 +11,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; background: #f8fafc; }
         .sidebar { background: #0f172a; color: white; height: 100vh; position: fixed; width: 260px; transition: all 0.3s; }
-        .nav-link { display: flex; items-center: center; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.75rem; margin: 0.25rem 1rem; }
+        .nav-link { display: flex; align-items: center; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.75rem; margin: 0.25rem 1rem; }
         .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.05); color: white; }
         .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
         .card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
@@ -165,6 +165,16 @@
 
         <!-- TAB: BROADCAST -->
         <div id="section-broadcast" class="tab-section space-y-8 hidden">
+            <!-- Config Test Banner -->
+            <div class="max-w-3xl bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="zap" class="w-5 h-5 text-amber-500 shrink-0"></i>
+                    <p class="text-sm text-amber-800 font-medium">Vérifiez que votre configuration Brevo est opérationnelle avant d'envoyer.</p>
+                </div>
+                <button onclick="testEmailConfig()" id="testEmailBtn" class="shrink-0 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i> Tester la config
+                </button>
+            </div>
             <div class="max-w-3xl card p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-2 flex items-center">
                     <i data-lucide="send" class="text-blue-500 w-6 h-6 mr-3"></i> Diffusion d'Email Général
@@ -403,16 +413,44 @@
             });
 
             if (res && res.success) {
-                alert(`Félicitations ! Diffusion réussie. ${res.sent_count} emails ont été envoyés avec succès sur un total de ${res.total} destinataires !`);
-                e.target.reset();
+                let msg = `Diffusion terminée.\n✅ ${res.sent_count} email(s) envoyés sur ${res.total} destinataire(s).`;
+                if (res.errors && res.errors.length > 0) {
+                    msg += `\n\n❌ ${res.errors.length} échec(s) :`;
+                    res.errors.forEach(e => {
+                        msg += `\n• ${e.email} → ${e.reason}`;
+                    });
+                    msg += `\n\nVérifiez que la clé CVISUAL_MAILER_KEY est bien configurée sur Render et que l'email expéditeur est vérifié dans Brevo.`;
+                }
+                alert(msg);
+                if (res.sent_count > 0) e.target.reset();
             } else {
-                alert('Une erreur est survenue lors de la diffusion du message.');
+                alert(`Erreur lors de la diffusion.\n${res?.error || 'Vérifiez les logs du serveur.'}`);
             }
 
             btn.disabled = false;
             btn.innerHTML = '<i data-lucide="send" class="w-5 h-5 mr-2"></i> Diffuser le message';
             lucide.createIcons();
         });
+
+        // Test Email Config
+        async function testEmailConfig() {
+            const btn = document.getElementById('testEmailBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Test en cours...';
+            lucide.createIcons();
+
+            const res = await AdminApp.request('/admin/emails/test', { method: 'POST' });
+
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Tester la config';
+            lucide.createIcons();
+
+            if (res && res.success) {
+                alert(`✅ ${res.message}\n\nVérifiez votre boîte email !`);
+            } else {
+                alert(`❌ Échec du test email.\n\nRaison : ${res?.error || 'Erreur inconnue'}\n\nActions à effectuer :\n1. Vérifiez que CVISUAL_MAILER_KEY est défini dans les variables d'environnement Render\n2. Vérifiez que l'email cvisualht1@gmail.com est vérifié comme expéditeur dans votre compte Brevo`);
+            }
+        }
 
         // On Load
         loadTemplates();
