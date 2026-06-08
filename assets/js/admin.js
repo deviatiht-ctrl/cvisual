@@ -145,6 +145,7 @@ const AdminApp = {
         // ── Clients ───────────────────────────────────────────────────────────
         if ((m = ep.match(/^\/admin\/clients(?:\/(\d+))?$/))) {
             const id = m[1];
+            if (method === 'GET')    { const { data, error } = await sb.from('cvisual_clients').select('*').order('id'); if (error) return { error: error.message }; return data || []; }
             if (method === 'POST')   { const { error } = await sb.from('cvisual_clients').insert(body); return error ? { error: error.message } : { success: true }; }
             if (method === 'DELETE') { const { error } = await sb.from('cvisual_clients').delete().eq('id', id); return error ? { error: error.message } : { success: true }; }
         }

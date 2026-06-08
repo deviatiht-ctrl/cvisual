@@ -133,6 +133,7 @@
         </div>
     </div>
 
+    <script src="../../assets/js/supabase-config.js"></script>
     <script src="../../assets/js/admin.js"></script>
     <script>
         lucide.createIcons();
@@ -144,7 +145,7 @@
 
         async function loadClients() {
             const list = document.getElementById('clientsList');
-            const data = await AdminApp.request('/clients');
+            const data = await AdminApp.request('/admin/clients');
             
             if (data.error) {
                 list.innerHTML = `<div class="col-span-full p-10 text-center text-red-500 font-bold bg-red-50 rounded-3xl border border-red-100">Erreur de chargement.</div>`;
@@ -161,7 +162,7 @@
             }
 
             list.innerHTML = data.map(c => {
-                const logoUrl = (c.logo.startsWith('http') || c.logo.startsWith('data:')) ? c.logo : `${API_BASE.replace('/api','')}${c.logo}`;
+                const logoUrl = c.logo || '';
                 return `
                     <div class="card p-6 flex flex-col items-center group relative overflow-hidden">
                         <div class="w-full h-32 flex items-center justify-center mb-4 bg-gray-50 rounded-2xl p-6 transition-all group-hover:scale-105">
