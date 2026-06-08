@@ -121,6 +121,7 @@ const AdminApp = {
         // ── Services ──────────────────────────────────────────────────────────
         if ((m = ep.match(/^\/admin\/services(?:\/(\d+))?$/))) {
             const id = m[1];
+            if (method === 'GET')    { const { data, error } = await sb.from('cvisual_services').select('*').order('id'); if (error) return { error: error.message }; return data || []; }
             if (method === 'POST')   { const { error } = await sb.from('cvisual_services').insert(body); return error ? { error: error.message } : { success: true }; }
             if (method === 'PUT')    { const { error } = await sb.from('cvisual_services').update(body).eq('id', id); return error ? { error: error.message } : { success: true }; }
             if (method === 'DELETE') { const { error } = await sb.from('cvisual_services').delete().eq('id', id); return error ? { error: error.message } : { success: true }; }
@@ -129,6 +130,7 @@ const AdminApp = {
         // ── Portfolio ─────────────────────────────────────────────────────────
         if ((m = ep.match(/^\/admin\/portfolio(?:\/(\d+))?$/))) {
             const id = m[1];
+            if (method === 'GET')    { const { data, error } = await sb.from('cvisual_projects').select('*').order('id', { ascending: false }); if (error) return { error: error.message }; return data || []; }
             if (method === 'POST')   { const { error } = await sb.from('cvisual_projects').insert(body); return error ? { error: error.message } : { success: true }; }
             if (method === 'PUT')    { const { error } = await sb.from('cvisual_projects').update(body).eq('id', id); return error ? { error: error.message } : { success: true }; }
             if (method === 'DELETE') { const { error } = await sb.from('cvisual_projects').delete().eq('id', id); return error ? { error: error.message } : { success: true }; }
@@ -137,6 +139,7 @@ const AdminApp = {
         // ── News ──────────────────────────────────────────────────────────────
         if ((m = ep.match(/^\/admin\/news(?:\/(\d+))?$/))) {
             const id = m[1];
+            if (method === 'GET')    { const { data, error } = await sb.from('cvisual_news').select('*').order('created_at', { ascending: false }); if (error) return { error: error.message }; return data || []; }
             if (method === 'POST')   { const { error } = await sb.from('cvisual_news').insert(body); return error ? { error: error.message } : { success: true }; }
             if (method === 'PUT')    { const { error } = await sb.from('cvisual_news').update(body).eq('id', id); return error ? { error: error.message } : { success: true }; }
             if (method === 'DELETE') { const { error } = await sb.from('cvisual_news').delete().eq('id', id); return error ? { error: error.message } : { success: true }; }

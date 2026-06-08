@@ -219,7 +219,7 @@
 
         async function loadQuestions() {
             const list = document.getElementById('questionsList');
-            const data = await AdminApp.request('/recruitment/questions') || [];
+            const data = await AdminApp.request('/admin/recruitment/questions') || [];
             const jobInfo = await AdminApp.request('/admin/recruitment/info');
             
             // Load Job Info
