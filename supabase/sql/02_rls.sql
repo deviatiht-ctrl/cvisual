@@ -99,5 +99,64 @@ CREATE POLICY "cvisual_anon_insert_users"
 -- cvisual_visitors        : lecture admin seulement
 -- cvisual_users           : lecture admin seulement
 
--- Note : service_role bypass RLS. Toutes les Edge Functions admin
+-- -----------------------------------------------
+-- ACCÈS ADMIN COMPLET (utilisateur authentifié Supabase Auth)
+-- L'admin se connecte via supabase.auth.signInWithPassword()
+-- et peut ensuite lire/écrire dans toutes les tables.
+-- -----------------------------------------------
+CREATE POLICY "cvisual_auth_all_admins"
+    ON cvisual_admins FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_users"
+    ON cvisual_users FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_applications"
+    ON cvisual_applications FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_inquiries"
+    ON cvisual_inquiries FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_newsletter"
+    ON cvisual_newsletter FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_visitors"
+    ON cvisual_visitors FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_chat"
+    ON cvisual_chat_messages FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_templates"
+    ON cvisual_email_templates FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_settings"
+    ON cvisual_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_services"
+    ON cvisual_services FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_projects"
+    ON cvisual_projects FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_news"
+    ON cvisual_news FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_clients"
+    ON cvisual_clients FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_blog"
+    ON cvisual_blog FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_testimonials"
+    ON cvisual_testimonials FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_team"
+    ON cvisual_team FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_recruitment_info"
+    ON cvisual_recruitment_info FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "cvisual_auth_all_questions"
+    ON cvisual_recruitment_questions FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Note : service_role bypass RLS. Les Edge Functions admin
 -- utilisent la clé service_role et contournent ces politiques.

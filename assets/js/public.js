@@ -1,68 +1,207 @@
 /**
- * CVisual Public API Client
- * Handles data fetching for the public pages.
+ * CVisual Public API Client — Supabase Edition
+ * Toutes les données viennent directement de Supabase.
  */
 
-const API_BASE = 'https://cvisual-backend.onrender.com/api'; // Nouvo URL Render ou
-// const API_BASE = 'http://127.0.0.1:5000/api'; // Pou tès lokal
+/* ============================================================
+   SUPABASE — CLÉS API  (MODIFIER CES 2 LIGNES UNIQUEMENT)
+   Dashboard → https://supabase.com → Settings → API
+   ============================================================ */
+const SUPABASE_URL      = 'https://VOTRE_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY = 'VOTRE_ANON_KEY_ICI';
+/* ============================================================ */
 
+const SUPABASE_EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
+
+/* Chargement automatique du SDK Supabase depuis CDN */
+const _sbReady = new Promise(resolve => {
+    const init = () => {
+        const c = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: true, autoRefreshToken: true, storageKey: 'cv_sb_session' }
+        });
+        window._sb = c;
+        resolve(c);
+    };
+    if (window.supabase?.createClient) {
+        init();
+    } else {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+        s.onload = init;
+        document.head.appendChild(s);
+    }
+});
+
+// ── Helpers ────────────────────────────────────────────────
+
+function _fmtDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+async function _callEdge(path, body) {
+    const res = await fetch(`${SUPABASE_EDGE_BASE}/${path}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(body)
+    });
+    return res.json().catch(() => ({}));
+}
+
+// ── CVisual public object ───────────────────────────────────
 
 const CVisual = {
+
+    async fetchServices() {
+        try {
+            this.showLoader();
+            const sb = await _sbReady;
+            const { data, error } = await sb.from('cvisual_services').select('*').order('sort_order');
+            this.hideLoader();
+            if (error) throw error;
+            return data.length ? data : this._fallbackServices();
+        } catch (e) {
+            this.hideLoader();
+            console.error('fetchServices:', e);
+            return this._fallbackServices();
+        }
+    },
+
     async fetchPortfolio() {
         try {
             this.showLoader();
-            const res = await fetch(`${API_BASE}/portfolio`);
+            const sb = await _sbReady;
+            const { data, error } = await sb.from('cvisual_projects').select('*').order('sort_order');
             this.hideLoader();
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
+            if (error) throw error;
+            return data.length ? data : this._fallbackPortfolio();
         } catch (e) {
             this.hideLoader();
-            console.error('Failed to fetch portfolio, returning fallback values:', e);
-            return [
-                {
-                    id: 1,
-                    title: "E-Commerce Boutique Élégance",
-                    category: "Web Development",
-                    main_image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop",
-                    challenge: "Créer une plateforme e-commerce rapide et responsive pour une boutique haut de gamme.",
-                    solution: "Développement d'un site sur-mesure avec une expérience de paiement ultra-fluide.",
-                    live_link: "#"
-                },
-                {
-                    id: 2,
-                    title: "Branding Saveurs Créoles",
-                    category: "Design Graphique",
-                    main_image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=2670&auto=format&fit=crop",
-                    challenge: "Refondre l'identité visuelle pour un restaurant traditionnel haïtien.",
-                    solution: "Création d'un logo moderne tout en conservant les racines culturelles.",
-                    live_link: "#"
-                },
-                {
-                    id: 3,
-                    title: "Campagne Lumina Studio",
-                    category: "Gestion Communautaire",
-                    main_image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=2574&auto=format&fit=crop",
-                    challenge: "Propulser l'engagement d'un studio créatif sur Instagram et TikTok.",
-                    solution: "Production de contenus vidéos à fort impact et planification stratégique.",
-                    live_link: "#"
-                }
-            ];
+            console.error('fetchPortfolio:', e);
+            return this._fallbackPortfolio();
+        }
+    },
+
+    async fetchNews() {
+        try {
+            const sb = await _sbReady;
+            const { data, error } = await sb.from('cvisual_news').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            return (data || []).map(n => ({ ...n, date: _fmtDate(n.created_at) }));
+        } catch (e) {
+            console.error('fetchNews:', e);
+            return this._fallbackNews();
+        }
+    },
+
+    async fetchClients() {
+        try {
+            const sb = await _sbReady;
+            const { data, error } = await sb.from('cvisual_clients').select('*').order('sort_order');
+            if (error) throw error;
+            return data.length ? data : this._fallbackClients();
+        } catch (e) {
+            console.error('fetchClients:', e);
+            return this._fallbackClients();
+        }
+    },
+
+    async fetchBlog() {
+        try {
+            this.showLoader();
+            const sb = await _sbReady;
+            const { data, error } = await sb.from('cvisual_blog').select('*').eq('published', true).order('created_at', { ascending: false });
+            this.hideLoader();
+            if (error) throw error;
+            return (data || []).map(b => ({ ...b, date: _fmtDate(b.created_at) }));
+        } catch (e) {
+            this.hideLoader();
+            console.error('fetchBlog:', e);
+            return [{ id: 1, title: "L'essor du digital en Haïti en 2026", content: "Analyse des nouvelles tendances.", image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800", date: "12 Mai 2026" }];
+        }
+    },
+
+    async fetchStats() {
+        try {
+            const sb = await _sbReady;
+            const [{ count: projects }, { count: clients }] = await Promise.all([
+                sb.from('cvisual_projects').select('*', { count: 'exact', head: true }),
+                sb.from('cvisual_clients').select('*', { count: 'exact', head: true })
+            ]);
+            return { projects: projects || 0, clients: clients || 0, experience: 5, satisfaction: 99 };
+        } catch (e) {
+            console.error('fetchStats:', e);
+            return { projects: '150+', clients: '50+', experience: 5, satisfaction: 99 };
+        }
+    },
+
+    async fetchTestimonials() {
+        try {
+            const sb = await _sbReady;
+            const { data, error } = await sb.from('cvisual_testimonials').select('*').order('sort_order');
+            if (error) throw error;
+            return data.length ? data : this._fallbackTestimonials();
+        } catch (e) {
+            console.error('fetchTestimonials:', e);
+            return this._fallbackTestimonials();
+        }
+    },
+
+    async fetchTeam() {
+        try {
+            const sb = await _sbReady;
+            const { data, error } = await sb.from('cvisual_team').select('*').order('sort_order');
+            if (error) throw error;
+            return data.length ? data : this._fallbackTeam();
+        } catch (e) {
+            console.error('fetchTeam:', e);
+            return this._fallbackTeam();
+        }
+    },
+
+    async fetchRecruitmentInfo() {
+        try {
+            const sb = await _sbReady;
+            const { data } = await sb.from('cvisual_recruitment_info').select('*').limit(1).single();
+            return data || { job_title: '', job_details: '', is_active: true };
+        } catch (e) {
+            console.error('fetchRecruitmentInfo:', e);
+            return { job_title: '', job_details: '', is_active: true };
+        }
+    },
+
+    async fetchQuestions() {
+        try {
+            const sb = await _sbReady;
+            const { data } = await sb.from('cvisual_recruitment_questions').select('*').order('sort_order');
+            return data || [];
+        } catch (e) {
+            console.error('fetchQuestions:', e);
+            return [];
         }
     },
 
     async submitContact(data) {
         try {
             this.showLoader();
-            const res = await fetch(`${API_BASE}/contact`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+            const sb = await _sbReady;
+            const { error } = await sb.from('cvisual_inquiries').insert({
+                first_name: data.firstName,
+                last_name:  data.lastName,
+                email:      data.email,
+                service:    data.service,
+                message:    data.message
             });
             this.hideLoader();
-            return await res.json();
+            if (error) return { error: error.message };
+            _callEdge('send-email', { template_key: 'devis_received', to_email: data.email, context: { first_name: data.firstName, service: data.service, message: data.message } });
+            return { success: true };
         } catch (e) {
             this.hideLoader();
-            console.error('Failed to submit contact:', e);
+            console.error('submitContact:', e);
             return { error: 'Network error' };
         }
     },
@@ -70,279 +209,129 @@ const CVisual = {
     async subscribeNewsletter(email) {
         try {
             this.showLoader();
-            const res = await fetch(`${API_BASE}/newsletter`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
+            const sb = await _sbReady;
+            const { error } = await sb.from('cvisual_newsletter').insert({ email });
             this.hideLoader();
-            return await res.json();
+            if (error) {
+                if (error.code === '23505') return { error: 'Cet email est déjà inscrit.' };
+                return { error: error.message };
+            }
+            return { success: true };
         } catch (e) {
             this.hideLoader();
-            console.error('Newsletter sub failed:', e);
+            console.error('subscribeNewsletter:', e);
             return { error: 'Network error' };
-        }
-    },
-
-    async fetchServices() {
-        try {
-            this.showLoader();
-            const res = await fetch(`${API_BASE}/services`);
-            this.hideLoader();
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
-        } catch (e) {
-            this.hideLoader();
-            console.error('Failed to fetch services, returning fallback values:', e);
-            return [
-                {
-                    id: 1,
-                    title: "Développement Web",
-                    description: "Création de sites internet vitrines et e-commerce sur-mesure, performants et optimisés pour le SEO.",
-                    icon: "globe",
-                    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop",
-                    price: "45,000 HTG",
-                    delay: "15 jours"
-                },
-                {
-                    id: 2,
-                    title: "Photographie & Vidéo",
-                    description: "Captation d'images de haute qualité pour valoriser vos produits, vos événements et votre marque.",
-                    icon: "camera",
-                    image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=2564&auto=format&fit=crop",
-                    price: "25,000 HTG",
-                    delay: "5 jours"
-                },
-                {
-                    id: 3,
-                    title: "Gestion Communautaire",
-                    description: "Animation et croissance de vos réseaux sociaux pour bâtir une communauté active et engagée.",
-                    icon: "message-square",
-                    image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=2574&auto=format&fit=crop",
-                    price: "30,000 HTG",
-                    delay: "Mensuel"
-                },
-                {
-                    id: 4,
-                    title: "Design Graphique & Branding",
-                    description: "Conception de logos, d'identités visuelles uniques et de supports de communication professionnels.",
-                    icon: "palette",
-                    image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2671&auto=format&fit=crop",
-                    price: "20,000 HTG",
-                    delay: "7 jours"
-                }
-            ];
-        }
-    },
-
-    async fetchBlog() {
-        try {
-            this.showLoader();
-            const res = await fetch(`${API_BASE}/blog`);
-            this.hideLoader();
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
-        } catch (e) {
-            this.hideLoader();
-            console.error('Failed to fetch blog, returning fallback values:', e);
-            return [
-                {
-                    id: 1,
-                    title: "L'essor du digital en Haïti en 2026",
-                    content: "Analyse des nouvelles tendances de communication et de vente en ligne sur le marché local.",
-                    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2670&auto=format&fit=crop",
-                    date: "12 Mai 2026"
-                }
-            ];
-        }
-    },
-
-    async fetchStats() {
-        try {
-            const res = await fetch(`${API_BASE}/stats`);
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
-        } catch (e) {
-            console.error('Failed to fetch stats, returning fallback values:', e);
-            return {
-                projects: "150+",
-                satisfaction: "100%",
-                years: "5+"
-            };
-        }
-    },
-
-    async fetchTestimonials() {
-        try {
-            const res = await fetch(`${API_BASE}/testimonials`);
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
-        } catch (e) {
-            console.error('Failed to fetch testimonials, returning fallback values:', e);
-            return [
-                {
-                    content: "CVisual a complètement transformé notre présence en ligne. Notre nouveau site e-commerce a augmenté nos ventes de 250% en seulement 6 mois. Leur compréhension du marché haïtien est exceptionnelle.",
-                    name: "Jean-Baptiste Moreau",
-                    company: "Boutique Élégance",
-                    avatar: null
-                },
-                {
-                    content: "Les photos de nos plats réalisées par CVisual ont révolutionné notre marketing. Notre engagement sur Instagram a triplé et nous recevons maintenant des réservations de clients internationaux.",
-                    name: "Marie-Claire Joseph",
-                    company: "Saveurs Créoles",
-                    avatar: null
-                },
-                {
-                    content: "La gestion de nos réseaux sociaux par CVisual a professionnalisé notre image de marque. Nous avons gagné 5 000 nouveaux abonnés en 3 mois et notre taux de conversion a doublé.",
-                    name: "Pierre-Louis Desrosiers",
-                    company: "TechHaiti Solutions",
-                    avatar: null
-                }
-            ];
-        }
-    },
-
-    async fetchTeam() {
-        try {
-            const res = await fetch(`${API_BASE}/team`);
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
-        } catch (e) {
-            console.error('Failed to fetch team, returning fallback values:', e);
-            return [
-                { id: 1, name: "Marc-Arthur Jean", role: "Directeur Artistique & Fondateur", avatar: null },
-                { id: 2, name: "Vanessa Pierre", role: "Lead Web Developer", avatar: null },
-                { id: 3, name: "Jean-Paul Charles", role: "Social Media Manager", avatar: null }
-            ];
-        }
-    },
-
-    async fetchNews() {
-        try {
-            const res = await fetch(`${API_BASE}/news`);
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
-        } catch (e) {
-            console.error('Failed to fetch news, returning fallback values:', e);
-            return [
-                {
-                    id: 1,
-                    title: "CVisual recrute de nouveaux talents créatifs !",
-                    content: "Nous recherchons des designers graphiques et développeurs passionnés pour rejoindre notre équipe à Delmas.",
-                    type: "recrutement",
-                    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2670&auto=format&fit=crop",
-                    date: "15 Mai 2026"
-                },
-                {
-                    id: 2,
-                    title: "L'importance du design responsive pour votre entreprise",
-                    content: "Découvrez pourquoi adapter votre site internet aux formats mobiles est aujourd'hui indispensable en Haïti.",
-                    type: "actualite",
-                    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2670&auto=format&fit=crop",
-                    date: "10 Mai 2026"
-                }
-            ];
-        }
-    },
-
-    async fetchClients() {
-        try {
-            const res = await fetch(`${API_BASE}/clients`);
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
-        } catch (e) {
-            console.error('Failed to fetch clients, returning fallback values:', e);
-            return [
-                { id: 1, name: "Jeeko", logo: "assets/jeeko.jpg" },
-                { id: 2, name: "Madjicks", logo: "assets/madjicks (1).jpeg" },
-                { id: 3, name: "Senteur Douceur", logo: "assets/senteur douceur (1).jpeg" },
-                { id: 4, name: "Jim Smart", logo: "assets/jim smart 509 (1).jpeg" }
-            ];
         }
     },
 
     async submitApplication(data) {
         try {
             this.showLoader();
-            const res = await fetch(`${API_BASE}/apply`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+            const sb = await _sbReady;
+            const { error } = await sb.from('cvisual_applications').insert({
+                full_name:   data.fullName,
+                email:       data.email,
+                whatsapp:    data.whatsapp,
+                tiktok:      data.tiktok,
+                cv_link:     data.cvLink,
+                cv_filename: data.cvFilename,
+                motivation:  data.motivation,
+                answers:     data.answers
             });
             this.hideLoader();
-            return await res.json();
+            if (error) return { error: error.message };
+            _callEdge('send-email', { template_key: 'candidature_received', to_email: data.email, context: { full_name: data.fullName, whatsapp: data.whatsapp || 'Non renseigné', tiktok: data.tiktok || 'Non renseigné' } });
+            return { success: true };
         } catch (e) {
             this.hideLoader();
-            console.error('Failed to submit application:', e);
+            console.error('submitApplication:', e);
             return { error: 'Network error' };
         }
     },
+
+    async trackVisit() {
+        try {
+            const sb = await _sbReady;
+            await sb.from('cvisual_visitors').insert({ user_agent: navigator.userAgent });
+        } catch (_) {}
+    },
+
+    getImageUrl(path) {
+        if (!path) return '';
+        return path;
+    },
+
+    // ── Loader ───────────────────────────────────────────────
 
     showLoader() {
         if (!document.getElementById('global-loader')) {
             const loader = document.createElement('div');
             loader.id = 'global-loader';
-            loader.innerHTML = `
-                <div class="loader-overlay">
-                    <div class="loader-spinner"></div>
-                </div>
-            `;
+            loader.innerHTML = `<div class="loader-overlay"><div class="loader-spinner"></div></div>`;
             document.body.appendChild(loader);
-
             if (!document.getElementById('loader-styles')) {
                 const style = document.createElement('style');
                 style.id = 'loader-styles';
-                style.textContent = `
-                    .loader-overlay {
-                        position: fixed;
-                        inset: 0;
-                        background: rgba(0, 0, 0, 0.5);
-                        backdrop-filter: blur(4px);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        z-index: 9999;
-                        opacity: 0;
-                        transition: opacity 0.3s ease;
-                        pointer-events: all;
-                    }
-                    .loader-spinner {
-                        width: 48px;
-                        height: 48px;
-                        border: 5px solid #3b82f6;
-                        border-bottom-color: transparent;
-                        border-radius: 50%;
-                        animation: spin 1s linear infinite;
-                    }
-                    @keyframes spin {
-                        to { transform: rotate(360deg); }
-                    }
-                `;
+                style.textContent = `.loader-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;transition:opacity .3s ease}.loader-spinner{width:48px;height:48px;border:5px solid #3b82f6;border-bottom-color:transparent;border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`;
                 document.head.appendChild(style);
             }
         }
-        setTimeout(() => {
-            const overlay = document.querySelector('.loader-overlay');
-            if (overlay) overlay.style.opacity = '1';
-        }, 10);
+        setTimeout(() => { const o = document.querySelector('.loader-overlay'); if (o) o.style.opacity = '1'; }, 10);
     },
 
     hideLoader() {
-        const overlay = document.querySelector('.loader-overlay');
-        if (overlay) {
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.remove();
-                const container = document.getElementById('global-loader');
-                if (container) container.remove();
-            }, 300);
-        }
+        const o = document.querySelector('.loader-overlay');
+        if (o) { o.style.opacity = '0'; setTimeout(() => { o.remove(); const c = document.getElementById('global-loader'); if (c) c.remove(); }, 300); }
     },
 
-    getImageUrl(path) {
-        if (!path) return '';
-        if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('assets/')) return path;
-        const base = API_BASE.replace('/api', '');
-        return `${base}${path}`;
+    // ── Fallbacks ────────────────────────────────────────────
+
+    _fallbackServices() {
+        return [
+            { id:1, title:"Développement Web", description:"Création de sites internet vitrines et e-commerce sur-mesure.", icon:"globe", image:"https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800", price:"45,000 HTG", delay:"15 jours" },
+            { id:2, title:"Photographie & Vidéo", description:"Captation d'images de haute qualité pour valoriser votre marque.", icon:"camera", image:"https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800", price:"25,000 HTG", delay:"5 jours" },
+            { id:3, title:"Gestion Communautaire", description:"Animation et croissance de vos réseaux sociaux.", icon:"message-square", image:"https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800", price:"30,000 HTG", delay:"Mensuel" },
+            { id:4, title:"Design Graphique & Branding", description:"Conception de logos et d'identités visuelles uniques.", icon:"palette", image:"https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800", price:"20,000 HTG", delay:"7 jours" }
+        ];
+    },
+
+    _fallbackPortfolio() {
+        return [
+            { id:1, title:"E-Commerce Boutique Élégance", category:"Web Development", main_image:"https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800", challenge:"Créer une plateforme e-commerce rapide.", solution:"Développement sur-mesure.", live_link:"#" },
+            { id:2, title:"Branding Saveurs Créoles", category:"Design Graphique", main_image:"https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800", challenge:"Refondre l'identité visuelle.", solution:"Création d'un logo moderne.", live_link:"#" },
+            { id:3, title:"Campagne Lumina Studio", category:"Gestion Communautaire", main_image:"https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800", challenge:"Propulser l'engagement sur les réseaux.", solution:"Contenus vidéos à fort impact.", live_link:"#" }
+        ];
+    },
+
+    _fallbackNews() {
+        return [
+            { id:1, title:"CVisual recrute de nouveaux talents créatifs !", content:"Nous recherchons des designers et développeurs passionnés.", type:"recrutement", image:"https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800", date:"15 Mai 2026" },
+            { id:2, title:"L'importance du design responsive", content:"Pourquoi adapter votre site aux formats mobiles est indispensable.", type:"actualite", image:"https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800", date:"10 Mai 2026" }
+        ];
+    },
+
+    _fallbackClients() {
+        return [
+            { id:1, name:"Jeeko", logo:"assets/jeeko.jpg" },
+            { id:2, name:"Madjicks", logo:"assets/madjicks (1).jpeg" },
+            { id:3, name:"Senteur Douceur", logo:"assets/senteur douceur (1).jpeg" },
+            { id:4, name:"Jim Smart", logo:"assets/jim smart 509 (1).jpeg" }
+        ];
+    },
+
+    _fallbackTestimonials() {
+        return [
+            { content:"CVisual a transformé notre présence en ligne. Ventes +250% en 6 mois.", name:"Jean-Baptiste Moreau", company:"Boutique Élégance", avatar:null },
+            { content:"Photos réalisées par CVisual → engagement Instagram x3.", name:"Marie-Claire Joseph", company:"Saveurs Créoles", avatar:null },
+            { content:"5 000 nouveaux abonnés en 3 mois grâce à CVisual.", name:"Pierre-Louis Desrosiers", company:"TechHaiti Solutions", avatar:null }
+        ];
+    },
+
+    _fallbackTeam() {
+        return [
+            { id:1, name:"Marc-Arthur Jean", role:"Directeur Artistique & Fondateur", avatar:null },
+            { id:2, name:"Vanessa Pierre", role:"Lead Web Developer", avatar:null },
+            { id:3, name:"Jean-Paul Charles", role:"Social Media Manager", avatar:null }
+        ];
     }
 };
