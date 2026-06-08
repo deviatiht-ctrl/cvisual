@@ -330,7 +330,7 @@ const AdminApp = {
                     const canvas = document.createElement('canvas');
                     canvas.width = w; canvas.height = h;
                     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    resolve({ url: canvas.toDataURL('image/jpeg', 0.82) });
+                    resolve({ success: true, url: canvas.toDataURL('image/jpeg', 0.82) });
                 };
                 img.onerror = reject;
                 img.src = e.target.result;
