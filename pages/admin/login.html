@@ -103,9 +103,17 @@
         </p>
     </div>
 
+    <script src="../../assets/js/supabase-config.js"></script>
     <script src="../../assets/js/admin.js"></script>
     <script>
         lucide.createIcons();
+
+        /* Auto-redirect si déjà connecté comme admin */
+        _sbReady.then(sb => {
+            sb.auth.getSession().then(({ data: { session } }) => {
+                if (session) window.location.replace('dashboard.html');
+            });
+        });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();

@@ -133,6 +133,7 @@
                     <a href="pages/auth/register.html" class="px-4 py-2 rounded-full bg-gray-900 text-white font-bold text-sm hover:bg-primary transition-all">S'inscrire</a>
                 </div>
                 <div id="user-profile" class="hidden items-center space-x-3">
+                    <a id="admin-nav-btn" href="pages/admin/dashboard.html" class="hidden px-3 py-1.5 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:bg-primary/80 transition-all">Admin</a>
                     <div class="text-right hidden sm:block">
                         <p class="text-[10px] font-black uppercase text-gray-900" id="user-name">...</p>
                         <button onclick="logoutUser()" class="text-[8px] font-bold text-red-500 uppercase">Quitter</button>
@@ -173,6 +174,7 @@
                             <button onclick="logoutUser()" class="text-[10px] font-bold text-red-500 uppercase text-left hover:underline">Quitter / Déconnexion</button>
                         </div>
                     </div>
+                    <a id="mobile-admin-btn" href="pages/admin/dashboard.html" class="hidden p-4 rounded-2xl bg-primary text-white text-center font-bold text-sm">Panneau Admin</a>
                 </div>
             </nav>
         </div>
@@ -324,7 +326,8 @@
         </div>
     </footer>
 
-    <script src="assets/js/public.js?v=2.0.0"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/public.js?v=3.0.0"></script>
     <script src="assets/js/bottom-nav.js"></script>
     <script>
         lucide.createIcons();
@@ -472,54 +475,50 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initHome();
-            fetch('https://cvisual-backend.onrender.com/api/track', { method: 'POST' }).catch(() => {});
+            CVisual.trackVisit();
             checkUserAuth();
         });
 
-        function checkUserAuth() {
-            const token = localStorage.getItem('userToken');
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-            const authBtns = document.getElementById('auth-buttons');
-            const profile = document.getElementById('user-profile');
-            const mobileAuthBtns = document.getElementById('mobile-auth-buttons');
-            const mobileProfile = document.getElementById('mobile-user-profile');
-            
-            if (token && userData.name) {
-                if (authBtns) authBtns.classList.add('hidden');
-                if (profile) {
-                    profile.classList.remove('hidden');
-                    profile.classList.add('flex');
-                }
+        async function checkUserAuth() {
+            const session = await CVisual.checkAuth();
+            const isAdmin = CVisual.isAdmin(session);
+            const authBtns   = document.getElementById('auth-buttons');
+            const profile     = document.getElementById('user-profile');
+            const mobileAuth  = document.getElementById('mobile-auth-buttons');
+            const mobileProf  = document.getElementById('mobile-user-profile');
+            const adminBtn    = document.getElementById('admin-nav-btn');
+            const mobileAdmin = document.getElementById('mobile-admin-btn');
+
+            if (session) {
+                authBtns?.classList.add('hidden');
+                profile?.classList.remove('hidden');
+                profile?.classList.add('flex');
+                const displayName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
                 const nameEl = document.getElementById('user-name');
-                if (nameEl) nameEl.textContent = userData.name;
-                
-                // Mobile
-                if (mobileAuthBtns) mobileAuthBtns.classList.add('hidden');
-                if (mobileProfile) {
-                    mobileProfile.classList.remove('hidden');
-                    mobileProfile.classList.add('flex');
-                }
+                if (nameEl) nameEl.textContent = displayName;
+
+                mobileAuth?.classList.add('hidden');
+                mobileProf?.classList.remove('hidden');
+                mobileProf?.classList.add('flex');
                 const mobileNameEl = document.getElementById('mobile-user-name');
-                if (mobileNameEl) mobileNameEl.textContent = userData.name;
+                if (mobileNameEl) mobileNameEl.textContent = displayName;
+
+                if (isAdmin) {
+                    adminBtn?.classList.remove('hidden');
+                    mobileAdmin?.classList.remove('hidden');
+                }
             } else {
-                if (authBtns) {
-                    authBtns.classList.remove('hidden');
-                    authBtns.classList.add('flex');
-                }
-                if (profile) profile.classList.add('hidden');
-                
-                // Mobile
-                if (mobileAuthBtns) {
-                    mobileAuthBtns.classList.remove('hidden');
-                    mobileAuthBtns.classList.add('flex');
-                }
-                if (mobileProfile) mobileProfile.classList.add('hidden');
+                authBtns?.classList.remove('hidden');
+                authBtns?.classList.add('flex');
+                profile?.classList.add('hidden');
+                mobileAuth?.classList.remove('hidden');
+                mobileAuth?.classList.add('flex');
+                mobileProf?.classList.add('hidden');
             }
         }
 
-        window.logoutUser = () => {
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('userData');
+        window.logoutUser = async () => {
+            await CVisual.logout();
             window.location.reload();
         };
 
@@ -542,11 +541,9 @@
             box.appendChild(div);
             input.value = '';
             box.scrollTop = box.scrollHeight;
-            await fetch('https://cvisual-backend.onrender.com/api/chat/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sender: 'visitor', message: msg })
-            });
+            const visitorId = localStorage.getItem('cv_visitor_id') || (() => { const id = crypto.randomUUID(); localStorage.setItem('cv_visitor_id', id); return id; })();
+            const sb = await _sbReady;
+            await sb.from('cvisual_chat_messages').insert({ visitor_id: visitorId, sender: 'visitor', message: msg }).catch(() => {});
         }
         window.sendMessage = sendMessage;
     </script>

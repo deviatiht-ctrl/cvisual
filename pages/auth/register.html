@@ -61,6 +61,8 @@
         </div>
     </div>
 
+    <script src="../../assets/js/supabase-config.js"></script>
+    <script src="../../assets/js/public.js"></script>
     <script>
         document.getElementById('isCompany').addEventListener('change', (e) => {
             document.getElementById('companyField').classList.toggle('hidden', !e.target.checked);
@@ -68,30 +70,39 @@
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const data = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                isCompany: document.getElementById('isCompany').checked,
-                companyName: document.getElementById('companyName').value
-            };
+            const btn = e.target.querySelector('button');
+            const origText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Création du compte...';
 
-            const API_BASE = 'https://cvisual-backend.onrender.com/api';
+            const fullName    = document.getElementById('fullName').value.trim();
+            const email       = document.getElementById('email').value.trim();
+            const password    = document.getElementById('password').value;
+            const isCompany   = document.getElementById('isCompany').checked;
+            const companyName = document.getElementById('companyName').value.trim();
+
             try {
-                const res = await fetch(`${API_BASE}/user/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                const sb = await _sbReady;
+                const { data, error } = await sb.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { full_name: fullName, is_company: isCompany, company_name: companyName }
+                    }
                 });
-                const result = await res.json();
-                if (result.success) {
-                    alert('Compte créé avec succès ! Veuillez vous connecter.');
+
+                if (data?.user) {
+                    alert('Compte créé ! Vérifiez votre email pour confirmer, puis connectez-vous.');
                     window.location.href = 'login.html';
                 } else {
-                    alert(result.msg || 'Erreur lors de l\'inscription');
+                    alert(error?.message || "Erreur lors de l'inscription");
+                    btn.disabled = false;
+                    btn.textContent = origText;
                 }
-            } catch (error) {
-                alert('Erreur serveur. Veuillez réessayer.');
+            } catch (err) {
+                alert('Erreur inattendue. Vérifiez votre connexion.');
+                btn.disabled = false;
+                btn.textContent = origText;
             }
         });
     </script>

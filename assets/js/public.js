@@ -3,14 +3,10 @@
  * Toutes les données viennent directement de Supabase.
  */
 
-/* ============================================================
-   SUPABASE — CLÉS API  (MODIFIER CES 2 LIGNES UNIQUEMENT)
-   Dashboard → https://supabase.com → Settings → API
-   ============================================================ */
-const SUPABASE_URL      = 'https://VOTRE_PROJECT_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'VOTRE_ANON_KEY_ICI';
-/* ============================================================ */
-
+/* Config — chargée depuis supabase-config.js si disponible, sinon fallback */
+const SUPABASE_URL       = window.SUPABASE_URL      || 'https://VOTRE_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY  = window.SUPABASE_ANON_KEY || 'VOTRE_ANON_KEY_ICI';
+const ADMIN_EMAIL        = window.ADMIN_EMAIL       || 'admin@cvisual.com';
 const SUPABASE_EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
 
 /* Chargement automatique du SDK Supabase depuis CDN */
@@ -184,10 +180,27 @@ const CVisual = {
         }
     },
 
+    async checkAuth() {
+        const sb = await _sbReady;
+        const { data: { session } } = await sb.auth.getSession();
+        return session;
+    },
+
+    isAdmin(session) {
+        return !!(session && session.user.email === ADMIN_EMAIL);
+    },
+
+    async logout() {
+        const sb = await _sbReady;
+        await sb.auth.signOut();
+    },
+
     async submitContact(data) {
         try {
-            this.showLoader();
             const sb = await _sbReady;
+            const { data: { session } } = await sb.auth.getSession();
+            if (!session) return { requireAuth: true };
+            this.showLoader();
             const { error } = await sb.from('cvisual_inquiries').insert({
                 first_name: data.firstName,
                 last_name:  data.lastName,
@@ -252,7 +265,7 @@ const CVisual = {
     async trackVisit() {
         try {
             const sb = await _sbReady;
-            await sb.from('cvisual_visitors').insert({ user_agent: navigator.userAgent });
+            await sb.from('cvisual_visitors').insert({ user_agent: navigator.userAgent, page: window.location.pathname });
         } catch (_) {}
     },
 

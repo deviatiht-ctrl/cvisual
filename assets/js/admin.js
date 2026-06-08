@@ -3,14 +3,10 @@
  * Remplace entièrement le backend Python.
  */
 
-/* ============================================================
-   SUPABASE — CLÉS API  (MODIFIER CES 2 LIGNES UNIQUEMENT)
-   Dashboard → https://supabase.com → Settings → API
-   ============================================================ */
-const SUPABASE_URL      = 'https://VOTRE_PROJECT_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'VOTRE_ANON_KEY_ICI';
-/* ============================================================ */
-
+/* Config — chargée depuis supabase-config.js si disponible, sinon fallback */
+const SUPABASE_URL       = window.SUPABASE_URL      || 'https://VOTRE_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY  = window.SUPABASE_ANON_KEY || 'VOTRE_ANON_KEY_ICI';
+const ADMIN_EMAIL        = window.ADMIN_EMAIL       || 'admin@cvisual.com';
 const SUPABASE_EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
 
 /* Chargement automatique du SDK Supabase depuis CDN */

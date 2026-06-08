@@ -246,7 +246,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="lg:w-1/2 p-12 md:p-20">
+                <div class="lg:w-1/2 p-12 md:p-20" id="form-container">
+                    <!-- Auth gate — shown if not logged in -->
+                    <div id="auth-gate" class="hidden h-full flex flex-col items-center justify-center text-center py-12">
+                        <div class="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="lock" class="w-10 h-10 text-primary"></i>
+                        </div>
+                        <h3 class="text-2xl font-outfit font-black mb-4">Connexion requise</h3>
+                        <p class="text-gray-500 mb-8 max-w-xs">Créez un compte ou connectez-vous pour soumettre votre demande de devis gratuit.</p>
+                        <div class="flex flex-col gap-4 w-full max-w-xs">
+                            <a id="login-link" href="auth/login.html?redirect=../contact.html" class="py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary/90 transition-all text-center">Se connecter</a>
+                            <a href="auth/register.html" class="py-4 border-2 border-gray-900 text-gray-900 font-bold rounded-2xl hover:bg-gray-900 hover:text-white transition-all text-center">Créer un compte</a>
+                        </div>
+                    </div>
+                    <!-- Devis form — shown if logged in -->
                     <form id="contactForm" class="space-y-6">
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-2">
@@ -336,19 +349,21 @@
         </div>
     </footer>
 
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/public.js"></script>
     <script src="../assets/js/bottom-nav.js"></script>
     <script>
         lucide.createIcons();
+
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const closeMenu = document.getElementById('closeMenu');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
+        const closeMenu     = document.getElementById('closeMenu');
+        const mobileMenu    = document.getElementById('mobileMenu');
+        const menuOverlay   = document.getElementById('menuOverlay');
 
         function toggleMenu() {
             mobileMenu.classList.toggle('hidden');
             document.body.classList.toggle('overflow-hidden');
         }
-
         mobileMenuBtn.addEventListener('click', toggleMenu);
         closeMenu.addEventListener('click', toggleMenu);
         menuOverlay.addEventListener('click', toggleMenu);
@@ -362,71 +377,61 @@
                 header.classList.add('py-3', 'px-6', 'max-w-5xl');
                 header.classList.remove('py-2', 'px-4', 'max-w-4xl');
             }
-            
-            const reveals = document.querySelectorAll('.reveal');
-            reveals.forEach(el => {
-                const windowHeight = window.innerHeight;
-                const elementTop = el.getBoundingClientRect().top;
-                const elementVisible = 150;
-                if (elementTop < windowHeight - elementVisible) {
-                    el.classList.add('active');
-                }
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 150) el.classList.add('active');
             });
         });
         window.dispatchEvent(new Event('scroll'));
 
-        document.addEventListener('DOMContentLoaded', () => {
-            checkUserAuth();
-        });
+        document.addEventListener('DOMContentLoaded', initPage);
 
-        function checkUserAuth() {
-            const token = localStorage.getItem('userToken');
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-            const authBtns = document.getElementById('auth-buttons');
-            const profile = document.getElementById('user-profile');
-            const mobileAuthBtns = document.getElementById('mobile-auth-buttons');
-            const mobileProfile = document.getElementById('mobile-user-profile');
-            
-            if (token && userData.name) {
-                if (authBtns) authBtns.classList.add('hidden');
-                if (profile) {
-                    profile.classList.remove('hidden');
-                    profile.classList.add('flex');
-                }
+        async function initPage() {
+            const session = await CVisual.checkAuth();
+            const authGate   = document.getElementById('auth-gate');
+            const form       = document.getElementById('contactForm');
+            const authBtns   = document.getElementById('auth-buttons');
+            const profile     = document.getElementById('user-profile');
+            const mobileAuth = document.getElementById('mobile-auth-buttons');
+            const mobileProf = document.getElementById('mobile-user-profile');
+
+            if (session) {
+                /* ── Logged in: show form, pre-fill email ── */
+                authGate?.classList.add('hidden');
+                form?.classList.remove('hidden');
+
+                const emailInput = document.getElementById('email');
+                if (emailInput) emailInput.value = session.user.email;
+
+                /* Navbar */
+                authBtns?.classList.add('hidden');
+                profile?.classList.remove('hidden');
+                profile?.classList.add('flex');
+                const name = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
                 const nameEl = document.getElementById('user-name');
-                if (nameEl) nameEl.textContent = userData.name;
-                
-                // Mobile
-                if (mobileAuthBtns) mobileAuthBtns.classList.add('hidden');
-                if (mobileProfile) {
-                    mobileProfile.classList.remove('hidden');
-                    mobileProfile.classList.add('flex');
-                }
+                if (nameEl) nameEl.textContent = name;
+                mobileAuth?.classList.add('hidden');
+                mobileProf?.classList.remove('hidden');
+                mobileProf?.classList.add('flex');
                 const mobileNameEl = document.getElementById('mobile-user-name');
-                if (mobileNameEl) mobileNameEl.textContent = userData.name;
+                if (mobileNameEl) mobileNameEl.textContent = name;
             } else {
-                if (authBtns) {
-                    authBtns.classList.remove('hidden');
-                    authBtns.classList.add('flex');
-                }
-                if (profile) profile.classList.add('hidden');
-                
-                // Mobile
-                if (mobileAuthBtns) {
-                    mobileAuthBtns.classList.remove('hidden');
-                    mobileAuthBtns.classList.add('flex');
-                }
-                if (mobileProfile) mobileProfile.classList.add('hidden');
+                /* ── Not logged in: show auth gate, hide form ── */
+                authGate?.classList.remove('hidden');
+                form?.classList.add('hidden');
+                authBtns?.classList.remove('hidden');
+                authBtns?.classList.add('flex');
+                mobileAuth?.classList.remove('hidden');
+                mobileAuth?.classList.add('flex');
+                profile?.classList.add('hidden');
+                mobileProf?.classList.add('hidden');
             }
         }
 
-        window.logoutUser = () => {
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('userData');
+        window.logoutUser = async () => {
+            await CVisual.logout();
             window.location.reload();
         };
 
-        const API_BASE = 'https://cvisual-backend.onrender.com/api';
         document.getElementById('contactForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -437,31 +442,30 @@
 
             const payload = {
                 firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                service: document.getElementById('service').value,
-                message: document.getElementById('message').value
+                lastName:  document.getElementById('lastName').value,
+                email:     document.getElementById('email').value,
+                service:   document.getElementById('service').value,
+                message:   document.getElementById('message').value
             };
 
-            try {
-                const res = await fetch(`${API_BASE}/contact`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                    btn.innerHTML = '<i data-lucide="check" class="w-6 h-6"></i><span>Message Envoyé !</span>';
-                    btn.classList.replace('bg-primary', 'bg-emerald-600');
-                    e.target.reset();
-                    setTimeout(() => {
-                        btn.innerHTML = original;
-                        btn.classList.replace('bg-emerald-600', 'bg-primary');
-                        btn.disabled = false;
-                        lucide.createIcons();
-                    }, 3000);
-                } else { throw new Error(); }
-            } catch (e) {
-                alert("Erreur lors de l'envoi. Veuillez réessayer.");
+            const result = await CVisual.submitContact(payload);
+
+            if (result?.requireAuth) {
+                window.location.href = 'auth/login.html?redirect=../contact.html';
+                return;
+            }
+            if (result?.success) {
+                btn.innerHTML = '<i data-lucide="check" class="w-6 h-6"></i><span>Demande envoyée !</span>';
+                btn.classList.replace('bg-primary', 'bg-emerald-600');
+                e.target.reset();
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.classList.replace('bg-emerald-600', 'bg-primary');
+                    btn.disabled = false;
+                    lucide.createIcons();
+                }, 3500);
+            } else {
+                alert(result?.error || "Erreur lors de l'envoi. Veuillez réessayer.");
                 btn.disabled = false;
                 btn.innerHTML = original;
                 lucide.createIcons();
