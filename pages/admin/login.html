@@ -111,7 +111,9 @@
         /* Auto-redirect si déjà connecté comme admin */
         _sbReady.then(sb => {
             sb.auth.getSession().then(({ data: { session } }) => {
-                if (session) window.location.replace('dashboard.html');
+                if (session && session.user?.app_metadata?.role === 'admin') {
+                    window.location.replace('dashboard.html');
+                }
             });
         });
 

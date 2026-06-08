@@ -6,7 +6,6 @@
 /* Config — chargée depuis supabase-config.js si disponible, sinon fallback */
 const SUPABASE_URL       = window.SUPABASE_URL      || 'https://VOTRE_PROJECT_ID.supabase.co';
 const SUPABASE_ANON_KEY  = window.SUPABASE_ANON_KEY || 'VOTRE_ANON_KEY_ICI';
-const ADMIN_EMAIL        = window.ADMIN_EMAIL       || 'admin@cvisual.com';
 const SUPABASE_EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
 
 /* Chargement automatique du SDK Supabase depuis CDN */
@@ -64,7 +63,8 @@ const AdminApp = {
             const s = JSON.parse(raw);
             if (!s?.access_token) return false;
             if (s.expires_at && s.expires_at < Math.floor(Date.now() / 1000)) return false;
-            return true;
+            const role = s.user?.app_metadata?.role || s.user?.user_metadata?.role;
+            return role === 'admin';
         } catch { return false; }
     },
 
